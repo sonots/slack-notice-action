@@ -1,5 +1,5 @@
 process.env.GITHUB_WORKFLOW = 'PR Checks';
-process.env.GITHUB_SHA = 'b24f03a32e093fe8d55e23cfd0bb314069633b2f';
+process.env.GITHUB_SHA = 'cf194140294a4f469c694da7c4789dc05ae43ff2';
 process.env.GITHUB_REF = 'refs/heads/feature/19';
 process.env.GITHUB_EVENT_NAME = 'push';
 
@@ -21,14 +21,14 @@ const fixedFields = () => {
       short: false,
       title: 'commit',
       value:
-        '<https://github.com/sonots/slack-notice-action/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f|b24f03a32e093fe8d55e23cfd0bb314069633b2f>',
+        '<https://github.com/sonots/slack-notice-action/commit/cf194140294a4f469c694da7c4789dc05ae43ff2|cf194140294a4f469c694da7c4789dc05ae43ff2>',
     },
     { short: false, title: 'author', value: '839<sonots@gmail.com>' },
     {
       short: false,
       title: 'action',
       value:
-        '<https://github.com/sonots/slack-notice-action/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f/checks|action>',
+        '<https://github.com/sonots/slack-notice-action/commit/cf194140294a4f469c694da7c4789dc05ae43ff2/checks|action>',
     },
     { short: false, title: 'eventName', value: process.env.GITHUB_EVENT_NAME },
     { short: false, title: 'ref', value: process.env.GITHUB_REF },
