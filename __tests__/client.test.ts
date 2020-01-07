@@ -10,7 +10,7 @@ const fixedFields = () => {
     {
       short: true,
       title: 'repo',
-      value: '<https://github.com/8398a7/action-slack|8398a7/action-slack>',
+      value: '<https://github.com/sonots/slack-notice-action|sonots/slack-notice-action>',
     },
     {
       short: true,
@@ -21,14 +21,14 @@ const fixedFields = () => {
       short: true,
       title: 'commit',
       value:
-        '<https://github.com/8398a7/action-slack/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f|b24f03a32e093fe8d55e23cfd0bb314069633b2f>',
+        '<https://github.com/sonots/slack-notice-action/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f|b24f03a32e093fe8d55e23cfd0bb314069633b2f>',
     },
-    { short: true, title: 'author', value: '839<8398a7@gmail.com>' },
+    { short: true, title: 'author', value: '839<sonots@gmail.com>' },
     {
       short: true,
       title: 'action',
       value:
-        '<https://github.com/8398a7/action-slack/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f/checks|action>',
+        '<https://github.com/sonots/slack-notice-action/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f/checks|action>',
     },
     { short: true, title: 'eventName', value: process.env.GITHUB_EVENT_NAME },
     { short: true, title: 'ref', value: process.env.GITHUB_REF },
@@ -57,9 +57,9 @@ const successMsg = ':white_check_mark: Succeeded GitHub Actions';
 const cancelMsg = ':warning: Canceled GitHub Actions';
 const failMsg = ':no_entry: Failed GitHub Actions';
 
-describe('8398a7/action-slack', () => {
+describe('sonots/slack-notice-action', () => {
   beforeEach(() => {
-    process.env.GITHUB_REPOSITORY = '8398a7/action-slack';
+    process.env.GITHUB_REPOSITORY = 'sonots/slack-notice-action';
   });
 
   it('mentions one user', async () => {

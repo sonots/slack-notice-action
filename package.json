@@ -1,5 +1,5 @@
 {
-  "name": "action-slack",
+  "name": "slack-notice-action",
   "version": "2.6.0",
   "private": true,
   "description": "You can notify slack of GitHub Actions.",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/8398a7/action-slack.git"
+    "url": "git+https://github.com/sonots/slack-notice-action.git"
   },
   "keywords": [
     "actions",
@@ -26,7 +26,7 @@
     "chat",
     "slack"
   ],
-  "author": "8398a7",
+  "author": "sonots",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.0",

@@ -1,10 +1,10 @@
 # Action Slack
 
-![](https://github.com/8398a7/action-slack/workflows/build-test/badge.svg)
-![](https://github.com/8398a7/action-slack/workflows/Slack%20Mainline/badge.svg)
-![](https://img.shields.io/github/license/8398a7/action-slack?color=brightgreen)
-![](https://img.shields.io/github/v/release/8398a7/action-slack?color=brightgreen)
-[![codecov](https://codecov.io/gh/8398a7/action-slack/branch/master/graph/badge.svg)](https://codecov.io/gh/8398a7/action-slack)
+![](https://github.com/sonots/slack-notice-action/workflows/build-test/badge.svg)
+![](https://github.com/sonots/slack-notice-action/workflows/Slack%20Mainline/badge.svg)
+![](https://img.shields.io/github/license/sonots/slack-notice-action?color=brightgreen)
+![](https://img.shields.io/github/v/release/sonots/slack-notice-action?color=brightgreen)
+[![codecov](https://codecov.io/gh/sonots/slack-notice-action/branch/master/graph/badge.svg)](https://codecov.io/gh/sonots/slack-notice-action)
 
 You can notify slack of GitHub Actions.
 
@@ -18,7 +18,7 @@ See [action.yml](action.yml), [test.yml](.github/workflows/test.yml)
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
 | status            | 'success' or 'failure' or 'cancelled' or 'custom'                                                                                         | ''                    | Recommend<br />`${{ job.status }}`.                                                                         |
 | text              | any string                                                                                                                                | ''                    | You can add to text by specifying it.                                                                       |
-| author_name       | any string                                                                                                                                | '8398a7@action-slack' | It can be overwritten by specifying. The job name is recommend.                                             |
+| author_name       | any string                                                                                                                                | 'sonots@slack-notice-action' | It can be overwritten by specifying. The job name is recommend.                                             |
 | mention           | 'here' or 'channel' or [user_id](https://api.slack.com/reference/surfaces/formatting#mentioning-users) (e.g. `mention: user_id,user_id2`) | ''                    | Always mention when specified.                                                                              |
 | only_mention_fail | 'here' or 'channel' or [user_id](https://api.slack.com/reference/surfaces/formatting#mentioning-users) (e.g. `mention: user_id,user_id2`) | ''                    | If specified, mention only on failure.                                                                      |
 | payload           | e.g. `{"text": "Custom Field Check", obj: 'LOWER CASE'.toLowerCase()}`                                                                    | ''                    | Only available when status: custom. The payload format can pass javascript object.                          |
@@ -27,7 +27,7 @@ See [action.yml](action.yml), [test.yml](.github/workflows/test.yml)
 | icon_url          | Only legacy incoming webhook supported.                                                                                                   | ''                    | an icon image URL string to use in place of the default icon.                                               |
 | channel           | Only legacy incoming webhook supported.                                                                                                   | ''                    | override the legacy integration's default channel. This should be an ID, such as `C8UJ12P4P`.               |
 
-See here for `payload` reference or [Custom Notification](https://github.com/8398a7/action-slack#custom-notification).
+See here for `payload` reference or [Custom Notification](https://github.com/sonots/slack-notice-action#custom-notification).
 
 - [Message Formatting](https://api.slack.com/docs/messages/builder)
   - Enter json and check in preview.
@@ -38,10 +38,10 @@ See here for `payload` reference or [Custom Notification](https://github.com/839
 <img width="480" alt="success" src="https://user-images.githubusercontent.com/8043276/64882150-7c942480-d697-11e9-9fc8-85e6c02f6aeb.png">
 
 ```yaml
-- uses: 8398a7/action-slack@v2
+- uses: sonots/slack-notice-action@v2
   with:
     status: ${{ job.status }}
-    author_name: Integration Test # default: 8398a7@action-slack
+    author_name: Integration Test # default: sonots@slack-notice-action
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
@@ -51,7 +51,7 @@ See here for `payload` reference or [Custom Notification](https://github.com/839
 When adding to text, write as follows.
 
 ```yaml
-- uses: 8398a7/action-slack@v2
+- uses: sonots/slack-notice-action@v2
   with:
     status: ${{ job.status }}
     text: overwrite text
@@ -71,7 +71,7 @@ If you specify as follows, you can also support legacy incoming webhooks.
 The specified `secrets.SLACK_WEBHOOK_URL` must be legacy.
 
 ```yaml
-- uses: 8398a7/action-slack@v2
+- uses: sonots/slack-notice-action@v2
   with:
     type: ${{ job.status }}
     username: Custom Username
@@ -90,14 +90,14 @@ The payload format can pass javascript object.
 <img width="401" alt="custom" src="https://user-images.githubusercontent.com/8043276/64948009-1aaf0700-d8b1-11e9-868e-00be274821cf.png">
 
 ```yaml
-- uses: 8398a7/action-slack@v2
+- uses: sonots/slack-notice-action@v2
   with:
     status: custom
     payload: |
       {
         text: "Custom Field Check",
         attachments: [{
-          "author_name": "8398a7@action-slack", // json
+          "author_name": "sonots@slack-notice-action", // json
           fallback: 'fallback',
           color: 'good',
           title: 'CI Result',
@@ -134,7 +134,7 @@ Currently the field is fixed, but I want to make it selectable.
 It is assumed that the input is in csv format.
 
 ```yaml
-- uses: 8398a7/action-slack@v2
+- uses: sonots/slack-notice-action@v2
   with:
     status: ${{ job.status }}
     fields: repo,message,action,author
