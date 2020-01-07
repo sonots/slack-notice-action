@@ -10,35 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Succeeded Check
-        uses: sonots/slack-notice-action@v2
+        uses: sonots/slack-notice-action@v3
         with:
           status: success
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
       - name: Failed Check
-        uses: sonots/slack-notice-action@v2
+        uses: sonots/slack-notice-action@v3
         with:
           status: failure
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
       - name: Cancelled Check
-        uses: sonots/slack-notice-action@v2
+        uses: sonots/slack-notice-action@v3
         with:
           status: cancelled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
       - name: Check
-        uses: sonots/slack-notice-action@v2
+        uses: sonots/slack-notice-action@v3
         with:
           status: ${{ job.status }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
       - name: Legacy Check
-        uses: sonots/slack-notice-action@v2
+        uses: sonots/slack-notice-action@v3
         with:
           status: ${{ job.status }}
           username: legacy user
@@ -47,7 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_LEGACY_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
       - name: Custom Field Check
-        uses: sonots/slack-notice-action@v2
+        uses: sonots/slack-notice-action@v3
         with:
           status: custom
           payload: |
@@ -82,7 +82,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
       - name: Check
-        uses: sonots/slack-notice-action@v2
+        uses: sonots/slack-notice-action@v3
         with:
           status: ${{ job.status }}
         env:

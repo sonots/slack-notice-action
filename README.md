@@ -38,7 +38,7 @@ See here for `payload` reference or [Custom Notification](https://github.com/son
 <img width="480" alt="success" src="https://user-images.githubusercontent.com/8043276/64882150-7c942480-d697-11e9-9fc8-85e6c02f6aeb.png">
 
 ```yaml
-- uses: sonots/slack-notice-action@v2
+- uses: sonots/slack-notice-action@v3
   with:
     status: ${{ job.status }}
     author_name: Integration Test # default: sonots@slack-notice-action
@@ -51,7 +51,7 @@ See here for `payload` reference or [Custom Notification](https://github.com/son
 When adding to text, write as follows.
 
 ```yaml
-- uses: sonots/slack-notice-action@v2
+- uses: sonots/slack-notice-action@v3
   with:
     status: ${{ job.status }}
     text: overwrite text
@@ -71,7 +71,7 @@ If you specify as follows, you can also support legacy incoming webhooks.
 The specified `secrets.SLACK_WEBHOOK_URL` must be legacy.
 
 ```yaml
-- uses: sonots/slack-notice-action@v2
+- uses: sonots/slack-notice-action@v3
   with:
     type: ${{ job.status }}
     username: Custom Username
@@ -90,7 +90,7 @@ The payload format can pass javascript object.
 <img width="401" alt="custom" src="https://user-images.githubusercontent.com/8043276/64948009-1aaf0700-d8b1-11e9-868e-00be274821cf.png">
 
 ```yaml
-- uses: sonots/slack-notice-action@v2
+- uses: sonots/slack-notice-action@v3
   with:
     status: custom
     payload: |
@@ -134,7 +134,7 @@ Currently the field is fixed, but I want to make it selectable.
 It is assumed that the input is in csv format.
 
 ```yaml
-- uses: sonots/slack-notice-action@v2
+- uses: sonots/slack-notice-action@v3
   with:
     status: ${{ job.status }}
     fields: repo,message,action,author
