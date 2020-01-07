@@ -31,6 +31,7 @@ async function run(): Promise<void> {
       {
         status,
         mention,
+        text,
         title,
         only_mention_fail,
         username,
@@ -44,13 +45,13 @@ async function run(): Promise<void> {
 
     switch (status) {
       case 'success':
-        await client.send(await client.success(text));
+        await client.send(await client.success());
         break;
       case 'failure':
-        await client.send(await client.fail(text));
+        await client.send(await client.fail());
         break;
       case 'cancelled':
-        await client.send(await client.cancel(text));
+        await client.send(await client.cancel());
         break;
       case 'custom':
         /* eslint-disable no-var */

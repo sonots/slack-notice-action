@@ -5,6 +5,7 @@ import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
 export interface With {
   status: string;
   mention: string;
+  text: string;
   title: string;
   only_mention_fail: string;
   username: string;
@@ -36,30 +37,27 @@ export class Client {
     this.webhook = new IncomingWebhook(webhookUrl);
   }
 
-  async success(text: string) {
+  async success() {
     const template = await this.payloadTemplate();
     template.attachments[0].color = 'good';
-    template.text += 'A GitHub Action has succeeded\n';
-    template.text += text;
+    template.text += this.textSuccess;
 
     return template;
   }
 
-  async fail(text: string) {
+  async fail() {
     const template = await this.payloadTemplate();
     template.attachments[0].color = 'danger';
     template.text += this.mentionText(this.with.only_mention_fail);
-    template.text += 'A GitHub Action has failed\n';
-    template.text += text;
+    template.text += this.textFail;
 
     return template;
   }
 
-  async cancel(text: string) {
+  async cancel() {
     const template = await this.payloadTemplate();
     template.attachments[0].color = 'warning';
-    template.text += 'A GitHub Action has been canceled\n';
-    template.text += text;
+    template.text += this.textCancel;
 
     return template;
   }
@@ -100,9 +98,21 @@ export class Client {
     const { author } = commit.data.commit;
 
     return [
-      this.repo,
-      this.ref,
-      this.commit,
+      {
+        title: 'repository',
+        value: this.repositoryLink,
+        short: false,
+      },
+      {
+        title: 'ref',
+        value: github.context.ref,
+        short: false,
+      },
+      {
+        title: 'commit',
+        value: this.commitLink,
+        short: false,
+      },
       {
         title: 'author',
         value: `${author.name}<${author.email}>`,
@@ -121,29 +131,45 @@ export class Client {
     ];
   }
 
-  private get title() {
-    return this.with.title === '' ? github.context.workflow : this.with.title;
+  private get textSuccess() {
+    if (this.with.text !== '') {
+      return this.with.text;
+    }
+    return 'A GitHub Action has succeeded';
   }
 
-  private get commit() {
+  private get textFail() {
+    if (this.with.text !== '') {
+      return this.with.text;
+    }
+    return 'A GitHub Action has failed';
+  }
+
+  private get textCancel() {
+    if (this.with.text !== '') {
+      return this.with.text;
+    }
+    return 'A GitHub Action has been cancelled';
+  }
+
+  private get title() {
+    if (this.with.title !== '') {
+      return this.with.title;
+    }
+    return github.context.workflow;
+  }
+
+  private get commitLink() {
     const { sha } = github.context;
     const { owner, repo } = github.context.repo;
 
-    return {
-      title: 'commit',
-      value: `<https://github.com/${owner}/${repo}/commit/${sha}|${sha}>`,
-      short: false,
-    };
+    return `<https://github.com/${owner}/${repo}/commit/${sha}|${sha}>`;
   }
 
-  private get repo() {
+  private get repositoryLink() {
     const { owner, repo } = github.context.repo;
 
-    return {
-      title: 'repository',
-      value: `<https://github.com/${owner}/${repo}|${owner}/${repo}>`,
-      short: false,
-    };
+    return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
   }
 
   private get workflowLink() {
@@ -151,19 +177,6 @@ export class Client {
     const { owner, repo } = github.context.repo;
 
     return `<https://github.com/${owner}/${repo}/commit/${sha}/checks|${github.context.workflow}>`;
-  }
-
-  // ex) push
-  private get eventName() {
-    return {
-      title: 'eventName',
-      value: github.context.eventName,
-      short: false,
-    };
-  }
-
-  private get ref() {
-    return { title: 'ref', value: github.context.ref, short: false };
   }
 
   private mentionText(mention: string) {
