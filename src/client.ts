@@ -5,7 +5,7 @@ import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
 export interface With {
   status: string;
   mention: string;
-  author_name: string;
+  title: string;
   only_mention_fail: string;
   username: string;
   icon_emoji: string;
@@ -39,7 +39,7 @@ export class Client {
   async success(text: string) {
     const template = await this.payloadTemplate();
     template.attachments[0].color = 'good';
-    template.text += ':white_check_mark: Succeeded GitHub Actions\n';
+    template.text += 'A GitHub Action has succeeded\n';
     template.text += text;
 
     return template;
@@ -49,7 +49,7 @@ export class Client {
     const template = await this.payloadTemplate();
     template.attachments[0].color = 'danger';
     template.text += this.mentionText(this.with.only_mention_fail);
-    template.text += ':no_entry: Failed GitHub Actions\n';
+    template.text += 'A GitHub Action has failed\n';
     template.text += text;
 
     return template;
@@ -58,7 +58,7 @@ export class Client {
   async cancel(text: string) {
     const template = await this.payloadTemplate();
     template.attachments[0].color = 'warning';
-    template.text += ':warning: Canceled GitHub Actions\n';
+    template.text += 'A GitHub Action has been canceled\n';
     template.text += text;
 
     return template;
@@ -83,7 +83,7 @@ export class Client {
       attachments: [
         {
           color: '',
-          author_name: this.with.author_name,
+          title: this.title,
           fields: await this.fields(),
         },
       ],
@@ -101,22 +101,28 @@ export class Client {
 
     return [
       this.repo,
-      {
-        title: 'message',
-        value: commit.data.commit.message,
-        short: false,
-      },
+      this.ref,
       this.commit,
       {
         title: 'author',
         value: `${author.name}<${author.email}>`,
         short: false,
       },
-      this.action,
-      this.eventName,
-      this.ref,
-      this.workflow,
+      {
+        title: 'message',
+        value: commit.data.commit.message,
+        short: false,
+      },
+      {
+        title: 'workflow',
+        value: this.workflowLink,
+        short: false,
+      },
     ];
+  }
+
+  private get title() {
+    return this.with.title == '' ? github.context.workflow : this.with.title;
   }
 
   private get commit() {
@@ -134,23 +140,20 @@ export class Client {
     const { owner, repo } = github.context.repo;
 
     return {
-      title: 'repo',
+      title: 'repository',
       value: `<https://github.com/${owner}/${repo}|${owner}/${repo}>`,
       short: false,
     };
   }
 
-  private get action() {
+  private get workflowLink() {
     const { sha } = github.context;
     const { owner, repo } = github.context.repo;
 
-    return {
-      title: 'action',
-      value: `<https://github.com/${owner}/${repo}/commit/${sha}/checks|action>`,
-      short: false,
-    };
+    return `<https://github.com/${owner}/${repo}/commit/${sha}/checks|${github.context.workflow}>`;
   }
 
+  // ex) push
   private get eventName() {
     return {
       title: 'eventName',
@@ -161,10 +164,6 @@ export class Client {
 
   private get ref() {
     return { title: 'ref', value: github.context.ref, short: false };
-  }
-
-  private get workflow() {
-    return { title: 'workflow', value: github.context.workflow, short: false };
   }
 
   private mentionText(mention: string) {

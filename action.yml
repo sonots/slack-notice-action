@@ -18,9 +18,9 @@ inputs:
       Specify channel or here or `user_id`.
       refs: https://api.slack.com/reference/surfaces/formatting#mentioning-users
     default: ''
-  author_name:
-    description: User name for slack notification.
-    default: sonots@slack-notice-action
+  title:
+    description: Title for slack notification.
+    default: ''
   text:
     description: You can overwrite text.
     default: ''
