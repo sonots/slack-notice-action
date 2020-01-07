@@ -1,5 +1,5 @@
-name: slack-notice-action
-description: You can notify slack of GitHub Actions.
+name: Slack Notice Action
+description: A GitHub Action to notify slack.
 author: sonots
 inputs:
   status:

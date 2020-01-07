@@ -1,8 +1,8 @@
 {
   "name": "slack-notice-action",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
-  "description": "You can notify slack of GitHub Actions.",
+  "description": "A Github Action to notify slack.",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
