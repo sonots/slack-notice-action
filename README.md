@@ -145,7 +145,7 @@ It is assumed that the input is in csv format.
 
 ## How to Develop
 
-Change to `pre` branch:
+Switch to `pre` branch:
 
 ```
 $ git checkout pre
@@ -190,26 +190,21 @@ $ git push origin pre
 
 ## How to Release
 
-Comment out `node_modules` in .gitignore and create a v1 branch
+Switch to `v3` branch
 
 ```
-# comment out in distribution branches
-# node_modules/
+$ git checkout v3
 ```
 
+Build dist/index.js
+
 ```
-$ git checkout -b v1
-$ git commit -a -m "prod dependencies"
-$ npm install
-$ npm prune --production
-$ git add node_modules
-$ git commit -a -m "prod dependencies"
-$ git push origin v1
+$ npm run all
 ```
 
 Finally, tag it with a release version.
 
 ```
-$ git tag v1.x.x
-$ git push origin refs/tags/v1.x.x
+$ git tag v3.x.x
+$ git push origin refs/tags/v3.x.x
 ```
