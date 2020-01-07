@@ -3926,6 +3926,7 @@ function run() {
             const client = new client_1.Client({
                 status,
                 mention,
+                text,
                 title,
                 only_mention_fail,
                 username,
@@ -3935,13 +3936,13 @@ function run() {
             }, process.env.GITHUB_TOKEN, process.env.SLACK_WEBHOOK_URL);
             switch (status) {
                 case 'success':
-                    yield client.send(yield client.success(text));
+                    yield client.send(yield client.success());
                     break;
                 case 'failure':
-                    yield client.send(yield client.fail(text));
+                    yield client.send(yield client.fail());
                     break;
                 case 'cancelled':
-                    yield client.send(yield client.cancel(text));
+                    yield client.send(yield client.cancel());
                     break;
                 case 'custom':
                     /* eslint-disable no-var */
@@ -10338,31 +10339,28 @@ class Client {
         }
         this.webhook = new webhook_1.IncomingWebhook(webhookUrl);
     }
-    success(text) {
+    success() {
         return __awaiter(this, void 0, void 0, function* () {
             const template = yield this.payloadTemplate();
             template.attachments[0].color = 'good';
-            template.text += 'A GitHub Action has succeeded\n';
-            template.text += text;
+            template.text += this.textSuccess;
             return template;
         });
     }
-    fail(text) {
+    fail() {
         return __awaiter(this, void 0, void 0, function* () {
             const template = yield this.payloadTemplate();
             template.attachments[0].color = 'danger';
             template.text += this.mentionText(this.with.only_mention_fail);
-            template.text += 'A GitHub Action has failed\n';
-            template.text += text;
+            template.text += this.textFail;
             return template;
         });
     }
-    cancel(text) {
+    cancel() {
         return __awaiter(this, void 0, void 0, function* () {
             const template = yield this.payloadTemplate();
             template.attachments[0].color = 'warning';
-            template.text += 'A GitHub Action has been canceled\n';
-            template.text += text;
+            template.text += this.textCancel;
             return template;
         });
     }
@@ -10403,9 +10401,21 @@ class Client {
             const commit = yield this.github.repos.getCommit({ owner, repo, ref: sha });
             const { author } = commit.data.commit;
             return [
-                this.repo,
-                this.ref,
-                this.commit,
+                {
+                    title: 'repository',
+                    value: this.repositoryLink,
+                    short: false,
+                },
+                {
+                    title: 'ref',
+                    value: github.context.ref,
+                    short: false,
+                },
+                {
+                    title: 'commit',
+                    value: this.commitLink,
+                    short: false,
+                },
                 {
                     title: 'author',
                     value: `${author.name}<${author.email}>`,
@@ -10424,41 +10434,43 @@ class Client {
             ];
         });
     }
-    get title() {
-        return this.with.title === '' ? github.context.workflow : this.with.title;
+    get textSuccess() {
+        if (this.with.text !== '') {
+            return this.with.text;
+        }
+        return 'A GitHub Action has succeeded';
     }
-    get commit() {
+    get textFail() {
+        if (this.with.text !== '') {
+            return this.with.text;
+        }
+        return 'A GitHub Action has failed';
+    }
+    get textCancel() {
+        if (this.with.text !== '') {
+            return this.with.text;
+        }
+        return 'A GitHub Action has been cancelled';
+    }
+    get title() {
+        if (this.with.title !== '') {
+            return this.with.title;
+        }
+        return github.context.workflow;
+    }
+    get commitLink() {
         const { sha } = github.context;
         const { owner, repo } = github.context.repo;
-        return {
-            title: 'commit',
-            value: `<https://github.com/${owner}/${repo}/commit/${sha}|${sha}>`,
-            short: false,
-        };
+        return `<https://github.com/${owner}/${repo}/commit/${sha}|${sha}>`;
     }
-    get repo() {
+    get repositoryLink() {
         const { owner, repo } = github.context.repo;
-        return {
-            title: 'repository',
-            value: `<https://github.com/${owner}/${repo}|${owner}/${repo}>`,
-            short: false,
-        };
+        return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
     }
     get workflowLink() {
         const { sha } = github.context;
         const { owner, repo } = github.context.repo;
         return `<https://github.com/${owner}/${repo}/commit/${sha}/checks|${github.context.workflow}>`;
-    }
-    // ex) push
-    get eventName() {
-        return {
-            title: 'eventName',
-            value: github.context.eventName,
-            short: false,
-        };
-    }
-    get ref() {
-        return { title: 'ref', value: github.context.ref, short: false };
     }
     mentionText(mention) {
         const normalized = mention.replace(/ /g, '');
