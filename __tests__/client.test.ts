@@ -10,7 +10,8 @@ const fixedFields = () => {
     {
       short: false,
       title: 'repo',
-      value: '<https://github.com/sonots/slack-notice-action|sonots/slack-notice-action>',
+      value:
+        '<https://github.com/sonots/slack-notice-action|sonots/slack-notice-action>',
     },
     {
       short: false,

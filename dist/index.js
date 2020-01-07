@@ -10425,7 +10425,7 @@ class Client {
         });
     }
     get title() {
-        return this.with.title == '' ? github.context.workflow : this.with.title;
+        return this.with.title === '' ? github.context.workflow : this.with.title;
     }
     get commit() {
         const { sha } = github.context;
