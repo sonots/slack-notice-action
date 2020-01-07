@@ -145,4 +145,26 @@ It is assumed that the input is in csv format.
 
 ## How to Release
 
-See https://github.com/actions/typescript-action
+Comment out `node_modules` in .gitignore and create a releases/v1 branch
+
+```
+# comment out in distribution branches
+# node_modules/
+```
+
+```
+$ git checkout -b releases/v1
+$ git commit -a -m "prod dependencies"
+$ npm install
+$ npm prune --production
+$ git add node_modules
+$ git commit -a -m "prod dependencies"
+$ git push origin releases/v1
+```
+
+Finally, tag it with a release version.
+
+```
+$ git tag v1.x.x
+$ git push origin refs/tags/v1.x.x
+```
