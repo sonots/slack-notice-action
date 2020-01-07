@@ -12,24 +12,28 @@ Yet Another GitHub Action to notify slack.
 
 ### with Parameters
 
-| key               | value                                                                                                                                     | default               | description                                                                                                 |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
-| status            | 'success' or 'failure' or 'cancelled' or 'custom'                                                                                         | ''                    | Recommend<br />`${{ job.status }}`.                                                                         |
-| text              | any string                                                                                                                                | ''                    | You can add to text by specifying it.                                                                       |
-| title             | any string                                                                                                                                | workflow name         | It can be overwritten by specifying. The job name is recommend.                                             |
-| mention           | 'here' or 'channel' or [user_id](https://api.slack.com/reference/surfaces/formatting#mentioning-users) (e.g. `mention: user_id,user_id2`) | ''                    | Always mention when specified.                                                                              |
-| only_mention_fail | 'here' or 'channel' or [user_id](https://api.slack.com/reference/surfaces/formatting#mentioning-users) (e.g. `mention: user_id,user_id2`) | ''                    | If specified, mention only on failure.                                                                      |
-| payload           | e.g. `{"text": "Custom Field Check", obj: 'LOWER CASE'.toLowerCase()}`                                                                    | ''                    | Only available when status: custom. The payload format can pass javascript object.                          |
-| username          | Only legacy incoming webhook supported.                                                                                                   | ''                    | override the legacy integration's default name.                                                             |
-| icon_emoji        | Only legacy incoming webhook supported.                                                                                                   | ''                    | an [emoji code](https://www.webfx.com/tools/emoji-cheat-sheet/) string to use in place of the default icon. |
-| icon_url          | Only legacy incoming webhook supported.                                                                                                   | ''                    | an icon image URL string to use in place of the default icon.                                               |
-| channel           | Only legacy incoming webhook supported.                                                                                                   | ''                    | override the legacy integration's default channel. This should be an ID, such as `C8UJ12P4P`.               |
+| key               | value                                                      | default               | description                               |
+| ----------------- | ---------------------------------------------------------- | --------------------- | ------------------------------------------|
+| status            | 'success' or 'failure' or 'cancelled' or 'custom'          | ''                    | Use `${{ job.status }}`.                  |
+| text              | any string                                                 | ''                    | `text` field                              |
+| title             | any string                                                 | workflow name         | `title` field                             |
+| mention           | 'here' or 'channel' or user\_id such as `user_id,user_id2` | ''                    | Mention always if specified. The user ID should be an ID, such as `@U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users) |
+| only_mention_fail | 'here' or 'channel' or user\_id such as `user_id,user_id2` | ''                    | Mention only on failure if specified      |
 
-See here for `payload` reference or [Custom Notification](https://github.com/sonots/slack-notice-action#custom-notification).
+Supported by only legacy incoming webhook.
 
-- [Message Formatting](https://api.slack.com/docs/messages/builder)
-  - Enter json and check in preview.
-- [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
+| key               | value | default  | description                                                                                                 |
+| ----------------- | ----- | ---------| ----------------------------------------------------------------------------------------------------------- |
+| username          |       | ''       | override the legacy integration's default name.                                                             |
+| icon_emoji        |       | ''       | an [emoji code](https://www.webfx.com/tools/emoji-cheat-sheet/) string to use in place of the default icon. |
+| icon_url          |       | ''       | an icon image URL string to use in place of the default icon.                                               |
+| channel           |       | ''       | override the legacy integration's default channel. This should be an ID, such as `C8UJ12P4P`.               |
+
+Custom notification. See [Custom Notification](https://github.com/sonots/slack-notice-action#custom-notification) for details.
+
+| key               | value | default  | description                                                                                                 |
+| ----------------- | ----- | ---------| ----------------------------------------------------------------------------------------------------------- |
+| payload           |       | ''       | Only available when status: custom. The payload format can pass javascript object.                          |
 
 ### Notification
 
@@ -110,6 +114,12 @@ The payload format can pass javascript object.
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # optional
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
 ```
+
+See also:
+
+- [Message Builder](https://api.slack.com/docs/messages/builder)
+- [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
+
 
 ## Special Thanks
 
