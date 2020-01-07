@@ -8,31 +8,31 @@ import { Client, With } from '../src/client';
 const fixedFields = () => {
   return [
     {
-      short: true,
+      short: false,
       title: 'repo',
       value: '<https://github.com/sonots/slack-notice-action|sonots/slack-notice-action>',
     },
     {
-      short: true,
+      short: false,
       title: 'message',
       value: '[#19] support for multiple user mentions',
     },
     {
-      short: true,
+      short: false,
       title: 'commit',
       value:
         '<https://github.com/sonots/slack-notice-action/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f|b24f03a32e093fe8d55e23cfd0bb314069633b2f>',
     },
-    { short: true, title: 'author', value: '839<sonots@gmail.com>' },
+    { short: false, title: 'author', value: '839<sonots@gmail.com>' },
     {
-      short: true,
+      short: false,
       title: 'action',
       value:
         '<https://github.com/sonots/slack-notice-action/commit/b24f03a32e093fe8d55e23cfd0bb314069633b2f/checks|action>',
     },
-    { short: true, title: 'eventName', value: process.env.GITHUB_EVENT_NAME },
-    { short: true, title: 'ref', value: process.env.GITHUB_REF },
-    { short: true, title: 'workflow', value: process.env.GITHUB_WORKFLOW },
+    { short: false, title: 'eventName', value: process.env.GITHUB_EVENT_NAME },
+    { short: false, title: 'ref', value: process.env.GITHUB_REF },
+    { short: false, title: 'workflow', value: process.env.GITHUB_WORKFLOW },
   ];
 };
 
