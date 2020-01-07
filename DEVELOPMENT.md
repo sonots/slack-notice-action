@@ -12,29 +12,10 @@ Install the dependencies
 $ npm install
 ```
 
-Build the typescript
+Build the typescript and run tests
 
 ```
-$ npm run build
-```
-
-Run the tests ✔️
-
-```
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-Build dist/index.js
-
-```
-$ npm run pack
+$ npm run all
 ```
 
 Git push to run GitHub Actions.
@@ -43,24 +24,19 @@ Git push to run GitHub Actions.
 $ git push origin pre
 ```
 
+Merge (Send PR) `pre` into `master` branch.
+
 ## How to Release
 
-Switch to `v3` branch
+Merge (Send PR) `master` into `v3` branch.
 
-```
-$ git checkout v3
-```
-
-Build dist/index.js
-
-```
-$ npm run all
-```
-
-Finally, tag it with a release version.
+Add a tag with a release version.
 
 ```
 $ git tag v3.x.x
 $ git push origin refs/tags/v3.x.x
 ```
 
+Go to https://github.com/sonots/slack-notice-action/releases.
+
+`Edit > Update release` with `Publish this Action to the GitHub Marketplace` checked.

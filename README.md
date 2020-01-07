@@ -43,7 +43,6 @@ Custom notification. See [Custom Notification](https://github.com/sonots/slack-n
 - uses: sonots/slack-notice-action@v3
   with:
     status: ${{ job.status }}
-    title: Integration Test # default: sonots@slack-notice-action
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required, but GitHub should automatically supply
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
@@ -86,7 +85,7 @@ The payload format can pass javascript object.
       {
         text: "Custom Field Check",
         attachments: [{
-          "title": "sonots@slack-notice-action", // json
+          "author_name": "sonots@slack-notice-action", // json
           fallback: 'fallback',
           color: 'good',
           title: 'CI Result',
