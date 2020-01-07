@@ -35,8 +35,6 @@ See here for `payload` reference or [Custom Notification](https://github.com/son
 
 ### Notification
 
-<img width="480" alt="success" src="https://user-images.githubusercontent.com/8043276/64882150-7c942480-d697-11e9-9fc8-85e6c02f6aeb.png">
-
 ```yaml
 - uses: sonots/slack-notice-action@v3
   with:
@@ -62,9 +60,6 @@ When adding to text, write as follows.
 
 In case of failure or cancellation, you will be notified as follows.
 
-<img width="483" alt="failure" src="https://user-images.githubusercontent.com/8043276/64882189-933a7b80-d697-11e9-8afc-56530176a15e.png">
-<img width="484" alt="cancelled" src="https://user-images.githubusercontent.com/8043276/64882212-a3525b00-d697-11e9-8e98-aa5e515b304f.png">
-
 #### Legacy Incoming Webhooks
 
 If you specify as follows, you can also support legacy incoming webhooks.
@@ -86,8 +81,6 @@ The specified `secrets.SLACK_WEBHOOK_URL` must be legacy.
 
 Use `status: custom` if you want to send an arbitrary payload.
 The payload format can pass javascript object.
-
-<img width="401" alt="custom" src="https://user-images.githubusercontent.com/8043276/64948009-1aaf0700-d8b1-11e9-868e-00be274821cf.png">
 
 ```yaml
 - uses: sonots/slack-notice-action@v3
