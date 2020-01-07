@@ -173,7 +173,7 @@ $ npm test
 
 ## How to Release
 
-Comment out `node_modules` in .gitignore and create a releases/v1 branch
+Comment out `node_modules` in .gitignore and create a v1 branch
 
 ```
 # comment out in distribution branches
@@ -181,13 +181,13 @@ Comment out `node_modules` in .gitignore and create a releases/v1 branch
 ```
 
 ```
-$ git checkout -b releases/v1
+$ git checkout -b v1
 $ git commit -a -m "prod dependencies"
 $ npm install
 $ npm prune --production
 $ git add node_modules
 $ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
+$ git push origin v1
 ```
 
 Finally, tag it with a release version.

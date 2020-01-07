@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - releases/v3
+      - v3
 
 jobs:
   notification:
