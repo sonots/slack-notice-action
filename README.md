@@ -1,4 +1,4 @@
-# Action Slack
+# Slack Notice Action
 
 ![](https://github.com/sonots/slack-notice-action/workflows/build-test/badge.svg)
 ![](https://github.com/sonots/slack-notice-action/workflows/Slack%20Mainline/badge.svg)
@@ -6,11 +6,9 @@
 ![](https://img.shields.io/github/v/release/sonots/slack-notice-action?color=brightgreen)
 [![codecov](https://codecov.io/gh/sonots/slack-notice-action/branch/master/graph/badge.svg)](https://codecov.io/gh/sonots/slack-notice-action)
 
-You can notify slack of GitHub Actions.
+Yet Another GitHub Action to notify slack.
 
 ## Usage
-
-See [action.yml](action.yml), [test.yml](.github/workflows/test.yml)
 
 ### with Parameters
 
@@ -35,35 +33,29 @@ See here for `payload` reference or [Custom Notification](https://github.com/son
 
 ### Notification
 
+<img width="480" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
+
 ```yaml
 - uses: sonots/slack-notice-action@v3
   with:
     status: ${{ job.status }}
-    author_name: Integration Test # default: sonots@slack-notice-action
+    title: Integration Test # default: sonots@slack-notice-action
   env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required, but GitHub should automatically supply
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
   if: always() # Pick up events even if the job fails or is canceled.
 ```
 
-When adding to text, write as follows.
-
-```yaml
-- uses: sonots/slack-notice-action@v3
-  with:
-    status: ${{ job.status }}
-    text: overwrite text
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-```
-
 In case of failure or cancellation, you will be notified as follows.
+
+<img width="480" alt="failure" src="https://user-images.githubusercontent.com/2290461/71901854-26964000-31a4-11ea-9386-bec251a8a550.png" />
+<img width="480" alt="canceled" src="https://user-images.githubusercontent.com/2290461/71901862-2dbd4e00-31a4-11ea-99ea-9c1b37abe443.png" />
+
 
 #### Legacy Incoming Webhooks
 
-If you specify as follows, you can also support legacy incoming webhooks.
-The specified `secrets.SLACK_WEBHOOK_URL` must be legacy.
+Legacy incoming webhooks are also supported.
+The `secrets.SLACK_WEBHOOK_URL` must be legacy one.
 
 ```yaml
 - uses: sonots/slack-notice-action@v3
@@ -90,7 +82,7 @@ The payload format can pass javascript object.
       {
         text: "Custom Field Check",
         attachments: [{
-          "author_name": "sonots@slack-notice-action", // json
+          "title": "sonots@slack-notice-action", // json
           fallback: 'fallback',
           color: 'good',
           title: 'CI Result',
@@ -116,23 +108,6 @@ The payload format can pass javascript object.
       }
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # optional
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-```
-
-## Next Action
-
-### Selectable Field
-
-Currently the field is fixed, but I want to make it selectable.
-It is assumed that the input is in csv format.
-
-```yaml
-- uses: sonots/slack-notice-action@v3
-  with:
-    status: ${{ job.status }}
-    fields: repo,message,action,author
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
 ```
 
