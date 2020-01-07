@@ -122,7 +122,7 @@ export class Client {
   }
 
   private get title() {
-    return this.with.title == '' ? github.context.workflow : this.with.title;
+    return this.with.title === '' ? github.context.workflow : this.with.title;
   }
 
   private get commit() {
