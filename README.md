@@ -67,7 +67,7 @@ In case of failure or cancellation, you will be notified as follows.
 
 #### Legacy Incoming Webhooks
 
-If you specify as follows, you can also support legacy incoming webhooks.  
+If you specify as follows, you can also support legacy incoming webhooks.
 The specified `secrets.SLACK_WEBHOOK_URL` must be legacy.
 
 ```yaml
@@ -84,7 +84,7 @@ The specified `secrets.SLACK_WEBHOOK_URL` must be legacy.
 
 ### Custom Notification
 
-Use `status: custom` if you want to send an arbitrary payload.  
+Use `status: custom` if you want to send an arbitrary payload.
 The payload format can pass javascript object.
 
 <img width="401" alt="custom" src="https://user-images.githubusercontent.com/8043276/64948009-1aaf0700-d8b1-11e9-868e-00be274821cf.png">
@@ -130,7 +130,7 @@ The payload format can pass javascript object.
 
 ### Selectable Field
 
-Currently the field is fixed, but I want to make it selectable.  
+Currently the field is fixed, but I want to make it selectable.
 It is assumed that the input is in csv format.
 
 ```yaml
@@ -142,3 +142,7 @@ It is assumed that the input is in csv format.
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
 ```
+
+## How to Release
+
+See https://github.com/actions/typescript-action
