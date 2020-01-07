@@ -4,7 +4,7 @@ on:
     branches:
       - pre
       - master
-      - 'v*'
+      - 'releases/v*'
 
 jobs:
   uncommitted:
