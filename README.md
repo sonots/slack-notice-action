@@ -143,6 +143,34 @@ It is assumed that the input is in csv format.
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
 ```
 
+## How to Develop
+
+Install the dependencies
+
+```
+$ npm install
+```
+
+Build the typescript
+
+```
+$ npm run build
+```
+
+Run the tests ✔️
+
+```
+$ npm test
+
+ PASS  ./index.test.js
+  ✓ throws invalid number (3ms)
+  ✓ wait 500 ms (504ms)
+  ✓ test runs (95ms)
+
+...
+```
+
+
 ## How to Release
 
 Comment out `node_modules` in .gitignore and create a releases/v1 branch
