@@ -18,7 +18,7 @@ See [action.yml](action.yml), [test.yml](.github/workflows/test.yml)
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------- |
 | status            | 'success' or 'failure' or 'cancelled' or 'custom'                                                                                         | ''                    | Recommend<br />`${{ job.status }}`.                                                                         |
 | text              | any string                                                                                                                                | ''                    | You can add to text by specifying it.                                                                       |
-| author_name       | any string                                                                                                                                | 'sonots@slack-notice-action' | It can be overwritten by specifying. The job name is recommend.                                             |
+| title             | any string                                                                                                                                | workflow name         | It can be overwritten by specifying. The job name is recommend.                                             |
 | mention           | 'here' or 'channel' or [user_id](https://api.slack.com/reference/surfaces/formatting#mentioning-users) (e.g. `mention: user_id,user_id2`) | ''                    | Always mention when specified.                                                                              |
 | only_mention_fail | 'here' or 'channel' or [user_id](https://api.slack.com/reference/surfaces/formatting#mentioning-users) (e.g. `mention: user_id,user_id2`) | ''                    | If specified, mention only on failure.                                                                      |
 | payload           | e.g. `{"text": "Custom Field Check", obj: 'LOWER CASE'.toLowerCase()}`                                                                    | ''                    | Only available when status: custom. The payload format can pass javascript object.                          |
@@ -145,6 +145,12 @@ It is assumed that the input is in csv format.
 
 ## How to Develop
 
+Change to `pre` branch:
+
+```
+$ git checkout pre
+```
+
 Install the dependencies
 
 ```
@@ -170,6 +176,17 @@ $ npm test
 ...
 ```
 
+Build dist/index.js
+
+```
+$ npm run pack
+```
+
+Git push to run GitHub Actions.
+
+```
+$ git push origin pre
+```
 
 ## How to Release
 
