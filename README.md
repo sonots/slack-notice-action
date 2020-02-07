@@ -63,7 +63,7 @@ The `secrets.SLACK_WEBHOOK_URL` must be legacy one.
 ```yaml
 - uses: sonots/slack-notice-action@v3
   with:
-    type: ${{ job.status }}
+    status: ${{ job.status }}
     username: Custom Username
     icon_emoji: ':octocat:'
     channel: '#integration-test'
