@@ -106,27 +106,27 @@ export class Client {
       {
         title: 'ref',
         value: github.context.ref,
-        short: false,
+        short: true,
       },
       {
         title: 'commit',
         value: this.commitLink,
-        short: false,
+        short: true,
       },
       {
         title: 'author',
         value: `${author.name}<${author.email}>`,
-        short: false,
+        short: true,
       },
       {
         title: 'message',
         value: commit.data.commit.message,
-        short: false,
+        short: true,
       },
       {
         title: 'workflow',
         value: this.workflowLink,
-        short: false,
+        short: true,
       },
     ];
   }
