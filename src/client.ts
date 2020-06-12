@@ -1,3 +1,4 @@
+// ref. https://github.com/actions/toolkit
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
@@ -172,11 +173,16 @@ export class Client {
     return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
   }
 
+  private get runId() {
+    // ref. https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables
+    // https://github.com/actions/toolkit/blob/3e40dd39cc56303a2451f5b175068dbefdc11c18/packages/github/src/context.ts does not support run_id yet.
+    return process.env.GITHUB_RUN_ID as string;
+  }
+
   private get workflowLink() {
-    const { sha } = github.context;
     const { owner, repo } = github.context.repo;
 
-    return `<https://github.com/${owner}/${repo}/commit/${sha}/checks|${github.context.workflow}>`;
+    return `<https://github.com/${owner}/${repo}/actions/runs/${this.runId}|${github.context.workflow}>`;
   }
 
   private mentionText(mention: string) {
