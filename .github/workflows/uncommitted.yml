@@ -11,18 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - run: npm version
       - run: npm ci
-      - uses: actions/cache@v1
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
       - run: npm install
       - run: npm run release
       - name: check for uncommitted changes
         run: |
-          git diff --exit-code --stat -- . ':!node_modules' \
+          git diff --exit-code -- . ':!node_modules' \
           || (echo "##[error] found changed files after build. please 'npm run build && npm run format'" \
                    "and check in all changes" \
               && exit 1)
