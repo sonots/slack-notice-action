@@ -47,6 +47,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-github": "^3.4.0",
     "eslint-plugin-jest": "^23.1.1",
+    "flow-bin": "^0.70.0",
     "jest": "^24.9.0",
     "jest-circus": "^24.9.0",
     "js-yaml": "^3.13.1",
