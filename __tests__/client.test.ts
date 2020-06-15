@@ -2,6 +2,7 @@ process.env.GITHUB_WORKFLOW = 'PR Checks';
 process.env.GITHUB_SHA = 'cf194140294a4f469c694da7c4789dc05ae43ff2';
 process.env.GITHUB_REF = 'refs/heads/feature/19';
 process.env.GITHUB_EVENT_NAME = 'push';
+process.env.GITHUB_RUN_ID = '133472587';
 
 import { Client, With } from '../src/client';
 
@@ -34,7 +35,7 @@ const fixedFields = () => {
       short: false,
       title: 'action',
       value:
-        '<https://github.com/sonots/slack-notice-action/commit/cf194140294a4f469c694da7c4789dc05ae43ff2/checks|action>',
+        '<https://github.com/sonots/slack-notice-action/runs/133472587|action>',
     },
     { short: false, title: 'eventName', value: process.env.GITHUB_EVENT_NAME },
     { short: false, title: 'ref', value: process.env.GITHUB_REF },
