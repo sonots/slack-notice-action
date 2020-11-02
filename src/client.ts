@@ -100,7 +100,7 @@ export class Client {
 
     return [
       {
-        title: 'repository',
+        title: 'repo',
         value: this.repositoryLink,
         short: false,
       },
