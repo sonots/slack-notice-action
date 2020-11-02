@@ -29,7 +29,7 @@
   "author": "sonots",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.0",
+    "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.2",
     "@actions/github": "^2.0.0",
     "@actions/io": "^1.0.1",
