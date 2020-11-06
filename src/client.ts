@@ -95,8 +95,13 @@ export class Client {
     }
     const { sha } = github.context;
     const { owner, repo } = github.context.repo;
-    const commit = await this.octokit.repos.getCommit({ owner, repo, ref: sha });
+    const commit = await this.octokit.repos.getCommit({
+      owner,
+      repo,
+      ref: sha,
+    });
     const { author } = commit.data.commit;
+    const message = await this.message(commit.data.commit.message);
 
     return [
       {
@@ -121,7 +126,7 @@ export class Client {
       },
       {
         title: 'message',
-        value: commit.data.commit.message,
+        value: message,
         short: false,
       },
       {
@@ -171,6 +176,25 @@ export class Client {
     const { owner, repo } = github.context.repo;
 
     return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
+  }
+
+  private async message(message: string) {
+    if (this.octokit === undefined) {
+      throw Error('Specify secrets.GITHUB_TOKEN');
+    }
+    const { owner, repo } = github.context.repo;
+
+    const m = message.match(/Merge pull request #(\d+)/);
+    if (m) {
+      const pullNumber = parseInt(m[1]);
+      const { data: pullRequest } = await this.octokit.pulls.get({
+        owner,
+        repo,
+        pull_number: pullNumber,
+      });
+      return `${message}\n${pullRequest.body}`;
+    }
+    return message;
   }
 
   private get runId() {
