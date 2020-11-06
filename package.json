@@ -29,7 +29,7 @@
   "author": "sonots",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.0",
+    "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.2",
     "@actions/github": "^2.0.0",
     "@actions/io": "^1.0.1",
@@ -43,7 +43,7 @@
     "@types/semver": "^6.2.0",
     "@typescript-eslint/parser": "^2.13.0",
     "@zeit/ncc": "^0.20.5",
-    "codecov": "^3.6.5",
+    "codecov": "^3.7.1",
     "eslint": "^6.8.0",
     "eslint-plugin-github": "^3.4.0",
     "eslint-plugin-jest": "^23.1.1",
