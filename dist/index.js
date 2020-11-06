@@ -11337,7 +11337,7 @@ class Client {
             if (token === undefined) {
                 throw new Error('Specify secrets.GITHUB_TOKEN');
             }
-            this.github = new github.GitHub(token);
+            this.octokit = new github.GitHub(token);
         }
         if (webhookUrl === undefined) {
             throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
@@ -11398,16 +11398,21 @@ class Client {
     }
     fields() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.github === undefined) {
+            if (this.octokit === undefined) {
                 throw Error('Specify secrets.GITHUB_TOKEN');
             }
             const { sha } = github.context;
             const { owner, repo } = github.context.repo;
-            const commit = yield this.github.repos.getCommit({ owner, repo, ref: sha });
+            const commit = yield this.octokit.repos.getCommit({
+                owner,
+                repo,
+                ref: sha,
+            });
             const { author } = commit.data.commit;
+            const message = yield this.message(commit.data.commit.message);
             return [
                 {
-                    title: 'repository',
+                    title: 'repo',
                     value: this.repositoryLink,
                     short: false,
                 },
@@ -11428,7 +11433,7 @@ class Client {
                 },
                 {
                     title: 'message',
-                    value: commit.data.commit.message,
+                    value: message,
                     short: false,
                 },
                 {
@@ -11471,6 +11476,25 @@ class Client {
     get repositoryLink() {
         const { owner, repo } = github.context.repo;
         return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
+    }
+    message(message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.octokit === undefined) {
+                throw Error('Specify secrets.GITHUB_TOKEN');
+            }
+            const { owner, repo } = github.context.repo;
+            const m = message.match(/Merge pull request #(\d+)/);
+            if (m) {
+                const pullNumber = parseInt(m[1]);
+                const { data: pullRequest } = yield this.octokit.pulls.get({
+                    owner,
+                    repo,
+                    pull_number: pullNumber,
+                });
+                return `${message}\n${pullRequest.body}`;
+            }
+            return message;
+        });
     }
     get runId() {
         // ref. https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables#default-environment-variables
