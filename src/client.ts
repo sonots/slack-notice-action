@@ -7,6 +7,9 @@ export interface With {
   status: string;
   mention: string;
   text: string;
+  text_on_success: string;
+  text_on_fail: string;
+  text_on_cancel: string;
   title: string;
   only_mention_fail: string;
   username: string;
@@ -138,6 +141,9 @@ export class Client {
   }
 
   private get textSuccess() {
+    if (this.with.text_on_success !== '') {
+      return this.with.text_on_success;
+    }
     if (this.with.text !== '') {
       return this.with.text;
     }
@@ -145,6 +151,9 @@ export class Client {
   }
 
   private get textFail() {
+    if (this.with.text_on_fail !== '') {
+      return this.with.text_on_fail;
+    }
     if (this.with.text !== '') {
       return this.with.text;
     }
@@ -152,6 +161,9 @@ export class Client {
   }
 
   private get textCancel() {
+    if (this.with.text_on_cancel !== '') {
+      return this.with.text_on_cancel;
+    }
     if (this.with.text !== '') {
       return this.with.text;
     }
