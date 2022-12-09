@@ -40,28 +40,7 @@ Custom notification. See [Custom Notification](https://github.com/sonots/slack-n
 
 ### Notification
 
-<img width="480" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
-
-```yaml
-- uses: sonots/slack-notice-action@v3
-  with:
-    status: ${{ job.status }}
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required, but GitHub should automatically supply
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-  if: always() # Pick up events even if the job fails or is canceled.
-```
-
-In case of failure or cancellation, you will be notified as follows.
-
-<img width="480" alt="failure" src="https://user-images.githubusercontent.com/2290461/71901854-26964000-31a4-11ea-9386-bec251a8a550.png" />
-<img width="480" alt="canceled" src="https://user-images.githubusercontent.com/2290461/71901862-2dbd4e00-31a4-11ea-99ea-9c1b37abe443.png" />
-
-
-#### Legacy Incoming Webhooks
-
-Legacy incoming webhooks are also supported.
-The `secrets.SLACK_WEBHOOK_URL` must be legacy one.
+Example:
 
 ```yaml
 - uses: sonots/slack-notice-action@v3
@@ -71,9 +50,22 @@ The `secrets.SLACK_WEBHOOK_URL` must be legacy one.
     icon_emoji: ':octocat:'
     channel: '#integration-test'
   env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required, but this should be automatically supplied by GitHub.
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Required. Legacy Incoming Webhook is also supported.
+  if: always() # Pick up events even if the job fails or is canceled.
 ```
+
+In case of success:
+
+<img width="480" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
+
+In case of failure:
+
+<img width="480" alt="failure" src="https://user-images.githubusercontent.com/2290461/71901854-26964000-31a4-11ea-9386-bec251a8a550.png" />
+
+In case of cancellation:
+
+<img width="480" alt="canceled" src="https://user-images.githubusercontent.com/2290461/71901862-2dbd4e00-31a4-11ea-99ea-9c1b37abe443.png" />
 
 ### Custom Notification
 
