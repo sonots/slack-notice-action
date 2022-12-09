@@ -1,3 +1,11 @@
+## Prepare Webhook URL
+
+To create a legacy incoming webhook, go to https://slack.com/services/new/incoming-webhook.
+
+To create an incoming webhook, go to https://api.slack.com/apps, and create a new app, and an incoming webhook from there.
+
+Go to GitHub, and Settings > Secrets > Actions > Repository secrets, and create `SLACK_WEBHOOK_URL` to test.
+
 ## How to Develop
 
 Switch to `pre` branch:
