@@ -10,6 +10,9 @@ async function run(): Promise<void> {
     const title = core.getInput('title');
     const only_mention_fail = core.getInput('only_mention_fail');
     const text = core.getInput('text');
+    const text_on_success = core.getInput('text_on_success');
+    const text_on_fail = core.getInput('text_on_fail');
+    const text_on_cancel = core.getInput('text_on_cancel');
     const username = core.getInput('username');
     const icon_emoji = core.getInput('icon_emoji');
     const icon_url = core.getInput('icon_url');
@@ -21,6 +24,9 @@ async function run(): Promise<void> {
     core.debug(`title: ${title}`);
     core.debug(`only_mention_fail: ${only_mention_fail}`);
     core.debug(`text: ${text}`);
+    core.debug(`text_on_success: ${text_on_success}`);
+    core.debug(`text_on_fail: ${text_on_fail}`);
+    core.debug(`text_on_cancel: ${text_on_cancel}`);
     core.debug(`username: ${username}`);
     core.debug(`icon_emoji: ${icon_emoji}`);
     core.debug(`icon_url: ${icon_url}`);
@@ -32,6 +38,9 @@ async function run(): Promise<void> {
         status,
         mention,
         text,
+        text_on_success,
+        text_on_fail,
+        text_on_cancel,
         title,
         only_mention_fail,
         username,
