@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # TODO: Fix that we get diff always
-      # - run: npm version
-      # - run: npm ci
-      # - run: npm install
-      # - run: npm run release
-      # - name: check for uncommitted changes
-      #   run: |
-      #     git diff --exit-code -- . ':!node_modules' \
-      #     || (echo "##[error] found changed files after build. please 'npm run build && npm run format'" \
-      #              "and check in all changes" \
-      #         && exit 1)
+      # NOTE: Use node16 on local
+      - run: npm version
+      - run: npm ci
+      - run: npm install
+      - run: npm run release
+      - name: check for uncommitted changes
+        run: |
+          git diff --exit-code -- . ':!node_modules' \
+          || (echo "##[error] found changed files after build. please 'npm run build && npm run format'" \
+                   "and check in all changes" \
+              && exit 1)
