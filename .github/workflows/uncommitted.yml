@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - pre
-      - master
+      - main
       - 'v*'
 
 jobs:

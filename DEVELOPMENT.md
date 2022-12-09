@@ -32,13 +32,13 @@ Git push to run GitHub Actions.
 $ git push origin pre
 ```
 
-Send PR from  `pre` branch to `master` branch, and merge it.
+Send PR from  `pre` branch to `main` branch, and merge it.
 
 ## How to Release
 
 Update version in package.json.
 
-Send PR from `master` branch to `v3` branch, and merge it.
+Send PR from `main` branch to `v3` branch, and merge it.
 
 Add a tag with a release version.
 
