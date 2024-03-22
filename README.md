@@ -19,6 +19,7 @@ Yet Another GitHub Action to notify slack.
 | text_on_success   | any string                                                 | ''                    | `text` field on success                   |
 | text_on_fail      | any string                                                 | ''                    | `text` field on failure                   |
 | text_on_cancel    | any string                                                 | ''                    | `text` field on cancellation              |
+| text_on_skipped   | any string                                                 | ''                    | `text` field on skipped                   |
 | title             | any string                                                 | workflow name         | `title` field                             |
 | mention           | 'here' or 'channel' or user\_id such as `user_id,user_id2` | ''                    | Mention always if specified. The user ID should be an ID, such as `@U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users) |
 | only_mention_fail | 'here' or 'channel' or user\_id such as `user_id,user_id2` | ''                    | Mention only on failure if specified      |

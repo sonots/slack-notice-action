@@ -13,6 +13,7 @@ async function run(): Promise<void> {
     const text_on_success = core.getInput('text_on_success');
     const text_on_fail = core.getInput('text_on_fail');
     const text_on_cancel = core.getInput('text_on_cancel');
+    const text_on_skipped = core.getInput('text_on_skipped');
     const username = core.getInput('username');
     const icon_emoji = core.getInput('icon_emoji');
     const icon_url = core.getInput('icon_url');
@@ -27,6 +28,7 @@ async function run(): Promise<void> {
     core.debug(`text_on_success: ${text_on_success}`);
     core.debug(`text_on_fail: ${text_on_fail}`);
     core.debug(`text_on_cancel: ${text_on_cancel}`);
+    core.debug(`text_on_skipped: ${text_on_skipped}`);
     core.debug(`username: ${username}`);
     core.debug(`icon_emoji: ${icon_emoji}`);
     core.debug(`icon_url: ${icon_url}`);
@@ -41,6 +43,7 @@ async function run(): Promise<void> {
         text_on_success,
         text_on_fail,
         text_on_cancel,
+        text_on_skipped,
         title,
         only_mention_fail,
         username,
@@ -61,6 +64,9 @@ async function run(): Promise<void> {
         break;
       case 'cancelled':
         await client.send(await client.cancel());
+        break;
+      case 'skipped':
+        await client.send(await client.skipped());
         break;
       case 'custom':
         /* eslint-disable no-var */

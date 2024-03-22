@@ -10,6 +10,7 @@ export interface With {
   text_on_success: string;
   text_on_fail: string;
   text_on_cancel: string;
+  text_on_skipped: string;
   title: string;
   only_mention_fail: string;
   username: string;
@@ -62,6 +63,14 @@ export class Client {
     const template = await this.payloadTemplate();
     template.attachments[0].color = 'warning';
     template.text += this.textCancel;
+
+    return template;
+  }
+
+  async skipped() {
+    const template = await this.payloadTemplate();
+    template.attachments[0].color = 'good';
+    template.text += this.textSkipped;
 
     return template;
   }
@@ -168,6 +177,16 @@ export class Client {
       return this.with.text;
     }
     return 'A GitHub Action has been cancelled';
+  }
+
+  private get textSkipped() {
+    if (this.with.text_on_skipped !== '') {
+      return this.with.text_on_skipped;
+    }
+    if (this.with.text !== '') {
+      return this.with.text;
+    }
+    return 'A GitHub Action has been skipped';
   }
 
   private get title() {
