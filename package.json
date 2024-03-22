@@ -1,6 +1,6 @@
 {
   "name": "slack-notice-action",
-  "version": "3.1.6",
+  "version": "3.2.0",
   "private": true,
   "description": "A Github Action to notify slack.",
   "main": "lib/main.js",
@@ -42,7 +42,7 @@
     "@types/node": "^13.1.1",
     "@types/semver": "^6.2.0",
     "@typescript-eslint/parser": "^2.13.0",
-    "@zeit/ncc": "^0.20.5",
+    "@vercel/ncc": "^0.38.1",
     "codecov": "^3.8.3",
     "eslint": "^6.8.0",
     "eslint-plugin-github": "^3.4.0",

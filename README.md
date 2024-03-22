@@ -8,20 +8,35 @@
 
 Yet Another GitHub Action to notify slack.
 
+## Quick Start
+
+```yaml
+- uses: sonots/slack-notice-action@v3
+  with:
+    status: ${{ job.status }}
+    only_mention_fail: 'channel'
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required, but this should be automatically supplied by GitHub.
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Required. Legacy Incoming Webhook is also supported.
+  if: always() # Pick up events even if the job fails or is canceled.
+```
+
+<img width="360" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
+
 ## Usage
 
 ### with Parameters
 
 | key               | value                                                      | default               | description                               |
 | ----------------- | ---------------------------------------------------------- | --------------------- | ------------------------------------------|
-| status            | 'success' or 'failure' or 'cancelled' or 'custom'          | ''                    | Use `${{ job.status }}`.                  |
+| status            | `success` or `failure` or `cancelled` or `custom`          | ''                    | Use `${{ job.status }}`.                  |
 | text              | any string                                                 | ''                    | `text` field                              |
 | text_on_success   | any string                                                 | ''                    | `text` field on success                   |
 | text_on_fail      | any string                                                 | ''                    | `text` field on failure                   |
 | text_on_cancel    | any string                                                 | ''                    | `text` field on cancellation              |
 | title             | any string                                                 | workflow name         | `title` field                             |
-| mention           | 'here' or 'channel' or user\_id such as `user_id,user_id2` | ''                    | Mention always if specified. The user ID should be an ID, such as `@U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users) |
-| only_mention_fail | 'here' or 'channel' or user\_id such as `user_id,user_id2` | ''                    | Mention only on failure if specified      |
+| mention           | `here` or `channel` or user\_id such as `user_id,user_id2` | ''                    | Mention always if specified. The user ID should be an ID, such as `@U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users) |
+| only_mention_fail | `here` or `channel` or user\_id such as `user_id,user_id2` | ''                    | Mention only on failure if specified      |
 
 Supported by only legacy incoming webhook.
 
@@ -38,9 +53,9 @@ Custom notification. See [Custom Notification](https://github.com/sonots/slack-n
 | ----------------- | ----- | ---------| ----------------------------------------------------------------------------------------------------------- |
 | payload           |       | ''       | Only available when status: custom. The payload format can pass javascript object.                          |
 
-### Notification
+## Example
 
-Example:
+Legacy Incoming Webhook Example:
 
 ```yaml
 - uses: sonots/slack-notice-action@v3
@@ -48,7 +63,7 @@ Example:
     status: ${{ job.status }}
     username: Custom Username
     icon_emoji: ':octocat:'
-    channel: '#integration-test'
+    channel: 'C8UJ12P4P'
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required, but this should be automatically supplied by GitHub.
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Required. Legacy Incoming Webhook is also supported.
@@ -57,17 +72,17 @@ Example:
 
 In case of success:
 
-<img width="480" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
+<img width="360" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
 
 In case of failure:
 
-<img width="480" alt="failure" src="https://user-images.githubusercontent.com/2290461/71901854-26964000-31a4-11ea-9386-bec251a8a550.png" />
+<img width="360" alt="failure" src="https://user-images.githubusercontent.com/2290461/71901854-26964000-31a4-11ea-9386-bec251a8a550.png" />
 
 In case of cancellation:
 
-<img width="480" alt="canceled" src="https://user-images.githubusercontent.com/2290461/71901862-2dbd4e00-31a4-11ea-99ea-9c1b37abe443.png" />
+<img width="360" alt="canceled" src="https://user-images.githubusercontent.com/2290461/71901862-2dbd4e00-31a4-11ea-99ea-9c1b37abe443.png" />
 
-### Custom Notification
+## Example: Custom Notification
 
 Use `status: custom` if you want to send an arbitrary payload.
 The payload format can pass javascript object.
