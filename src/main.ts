@@ -14,6 +14,9 @@ async function run(): Promise<void> {
     const text_on_fail = core.getInput('text_on_fail');
     const text_on_cancel = core.getInput('text_on_cancel');
     const text_on_skipped = core.getInput('text_on_skipped');
+    const text_on_neutral = core.getInput('text_on_neutral');
+    const text_on_timed_out = core.getInput('text_on_timed_out');
+    const text_on_action_required = core.getInput('text_on_action_required');
     const username = core.getInput('username');
     const icon_emoji = core.getInput('icon_emoji');
     const icon_url = core.getInput('icon_url');
@@ -29,6 +32,9 @@ async function run(): Promise<void> {
     core.debug(`text_on_fail: ${text_on_fail}`);
     core.debug(`text_on_cancel: ${text_on_cancel}`);
     core.debug(`text_on_skipped: ${text_on_skipped}`);
+    core.debug(`text_on_neutral: ${text_on_neutral}`);
+    core.debug(`text_on_timed_out: ${text_on_timed_out}`);
+    core.debug(`text_on_action_required: ${text_on_action_required}`);
     core.debug(`username: ${username}`);
     core.debug(`icon_emoji: ${icon_emoji}`);
     core.debug(`icon_url: ${icon_url}`);
@@ -44,6 +50,9 @@ async function run(): Promise<void> {
         text_on_fail,
         text_on_cancel,
         text_on_skipped,
+        text_on_neutral,
+        text_on_timed_out,
+        text_on_action_required,
         title,
         only_mention_fail,
         username,
@@ -67,6 +76,15 @@ async function run(): Promise<void> {
         break;
       case 'skipped':
         await client.send(await client.skipped());
+        break;
+      case 'neutral':
+        await client.send(await client.neutral());
+        break;
+      case 'timed_out':
+        await client.send(await client.timedOut());
+        break;
+      case 'action_required':
+        await client.send(await client.actionRequired());
         break;
       case 'custom':
         /* eslint-disable no-var */

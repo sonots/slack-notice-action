@@ -11,6 +11,9 @@ export interface With {
   text_on_fail: string;
   text_on_cancel: string;
   text_on_skipped: string;
+  text_on_neutral: string;
+  text_on_timed_out: string;
+  text_on_action_required: string;
   title: string;
   only_mention_fail: string;
   username: string;
@@ -69,8 +72,32 @@ export class Client {
 
   async skipped() {
     const template = await this.payloadTemplate();
-    template.attachments[0].color = 'good';
+    template.attachments[0].color = 'warning';
     template.text += this.textSkipped;
+
+    return template;
+  }
+
+  async neutral() {
+    const template = await this.payloadTemplate();
+    template.attachments[0].color = 'warning';
+    template.text += this.textNeutral;
+
+    return template;
+  }
+
+  async timedOut() {
+    const template = await this.payloadTemplate();
+    template.attachments[0].color = 'danger';
+    template.text += this.with.text_on_timed_out;
+
+    return template;
+  }
+
+  async actionRequired() {
+    const template = await this.payloadTemplate();
+    template.attachments[0].color = 'warning';
+    template.text += this.with.text_on_action_required;
 
     return template;
   }
@@ -179,6 +206,7 @@ export class Client {
     return 'A GitHub Action has been cancelled';
   }
 
+  // workflow.conclusion
   private get textSkipped() {
     if (this.with.text_on_skipped !== '') {
       return this.with.text_on_skipped;
@@ -187,6 +215,16 @@ export class Client {
       return this.with.text;
     }
     return 'A GitHub Action has been skipped';
+  }
+
+  private get textNeutral() {
+    if (this.with.text_on_neutral !== '') {
+      return this.with.text_on_neutral;
+    }
+    if (this.with.text !== '') {
+      return this.with.text;
+    }
+    return 'A GitHub Action has been neutral';
   }
 
   private get title() {
