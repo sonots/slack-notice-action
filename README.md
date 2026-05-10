@@ -14,6 +14,7 @@ and arbitrary custom payloads.
 
 - [Quick Start](#quick-start)
 - [Inputs](#inputs)
+- [Customize text and mentions](#customize-text-and-mentions)
 - [Custom Notification](#custom-notification)
 - [Screenshots](#screenshots)
 - [Slack App Setup](#slack-app-setup)
@@ -52,6 +53,42 @@ and arbitrary custom payloads.
 | ------------------- | :------: | ----------- |
 | `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions. |
 | `SLACK_WEBHOOK_URL` | yes      | Your Slack App Incoming Webhook URL (see [Slack App Setup](#slack-app-setup)). |
+
+## Customize text and mentions
+
+Override the default message text per status and control who gets
+mentioned. `text_on_*` wins over `text`, and `only_mention_fail` only
+fires when `status` is `failure`.
+
+```yaml
+- uses: sonots/slack-notice-action@v4
+  with:
+    status: ${{ job.status }}
+    title: 'Build & Test'
+    text_on_success: ':white_check_mark: All checks passed!'
+    text_on_fail: ':rotating_light: Build broke — please investigate.'
+    text_on_cancel: ':warning: Job was cancelled.'
+    mention: 'channel'                          # always mentions @channel
+    only_mention_fail: 'U024BE7LH,U987XYZAB'    # mentions these users only on failure
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  if: always()
+```
+
+If you only need a single text override regardless of status, use `text`
+instead of the three `text_on_*` inputs:
+
+```yaml
+- uses: sonots/slack-notice-action@v4
+  with:
+    status: ${{ job.status }}
+    text: 'Nightly job finished.'
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  if: always()
+```
 
 ## Custom Notification
 
