@@ -99,13 +99,13 @@ Send PR from `pre` branch to `main` branch, and merge it.
 Update version in package.json.
 
 Send PR from `pre` branch to `main` branch, and merge it.
-Send PR from `main` branch to `v3` branch, and merge it.
+Send PR from `main` branch to `v4` branch, and merge it.
 
 Add a tag with a release version.
 
 ```
-$ git tag v3.x.x
-$ git push origin refs/tags/v3.x.x
+$ git tag v4.x.x
+$ git push origin refs/tags/v4.x.x
 ```
 
 Go to https://github.com/sonots/slack-notice-action/releases.

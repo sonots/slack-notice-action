@@ -11,7 +11,7 @@ Yet Another GitHub Action to notify slack.
 ## Quick Start
 
 ```yaml
-- uses: sonots/slack-notice-action@v3
+- uses: sonots/slack-notice-action@v4
   with:
     status: ${{ job.status }}
     only_mention_fail: 'channel'
@@ -64,7 +64,7 @@ Use `status: custom` if you want to send an arbitrary payload.
 The payload format can pass javascript object.
 
 ```yaml
-- uses: sonots/slack-notice-action@v3
+- uses: sonots/slack-notice-action@v4
   with:
     status: custom
     payload: |
