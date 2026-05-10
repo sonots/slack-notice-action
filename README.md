@@ -127,21 +127,11 @@ post time, so you choose the destination once on the Slack side:
 
 1. Open <https://api.slack.com/apps> → your app → **Incoming Webhooks**
 2. Click **Add New Webhook to Workspace** and select the target channel
-3. Save the URL as the `SLACK_WEBHOOK_URL` secret
+3. Save the URL as the `SLACK_WEBHOOK_URL` secret (see Quick Start above)
 
-If you need to post to multiple channels, repeat steps 2–3 for each
-channel and store each URL as its own secret (e.g.
-`SLACK_WEBHOOK_URL_RELEASES`, `SLACK_WEBHOOK_URL_ALERTS`), then pass
-whichever one a given step needs:
-
-```yaml
-- uses: sonots/slack-notice-action@v4
-  with:
-    status: ${{ job.status }}
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_RELEASES }}
-```
+If you need to post to multiple channels, repeat steps 1–3 for each
+channel and store each URL as a separate secret, then pass whichever
+one a given step needs to `SLACK_WEBHOOK_URL`.
 
 ### `username` / `icon_emoji` / `icon_url`: configure on the Slack App
 
