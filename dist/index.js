@@ -70415,13 +70415,8 @@ class Client {
     }
     async payloadTemplate() {
         const text = this.mentionText(this.with.mention);
-        const { username, icon_emoji, icon_url, channel } = this.with;
         return {
             text,
-            username,
-            icon_emoji,
-            icon_url,
-            channel,
             attachments: [
                 {
                     color: '',
@@ -70650,10 +70645,6 @@ async function run() {
         const text_on_success = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_success');
         const text_on_fail = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_fail');
         const text_on_cancel = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_cancel');
-        const username = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('username');
-        const icon_emoji = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('icon_emoji');
-        const icon_url = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('icon_url');
-        const channel = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('channel');
         const rawPayload = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('payload');
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`status: ${status}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`mention: ${mention}`);
@@ -70663,10 +70654,6 @@ async function run() {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_success: ${text_on_success}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_fail: ${text_on_fail}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_cancel: ${text_on_cancel}`);
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`username: ${username}`);
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`icon_emoji: ${icon_emoji}`);
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`icon_url: ${icon_url}`);
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`channel: ${channel}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`rawPayload: ${rawPayload}`);
         const client = new _client_js__WEBPACK_IMPORTED_MODULE_1__/* .Client */ .K({
             status,
@@ -70677,10 +70664,6 @@ async function run() {
             text_on_cancel,
             title,
             only_mention_fail,
-            username,
-            icon_emoji,
-            icon_url,
-            channel,
         }, process.env.GITHUB_TOKEN, process.env.SLACK_WEBHOOK_URL);
         switch (status) {
             case 'success':
