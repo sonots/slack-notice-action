@@ -13,10 +13,6 @@ async function run(): Promise<void> {
     const text_on_success = core.getInput('text_on_success');
     const text_on_fail = core.getInput('text_on_fail');
     const text_on_cancel = core.getInput('text_on_cancel');
-    const username = core.getInput('username');
-    const icon_emoji = core.getInput('icon_emoji');
-    const icon_url = core.getInput('icon_url');
-    const channel = core.getInput('channel');
     const rawPayload = core.getInput('payload');
 
     core.debug(`status: ${status}`);
@@ -27,10 +23,6 @@ async function run(): Promise<void> {
     core.debug(`text_on_success: ${text_on_success}`);
     core.debug(`text_on_fail: ${text_on_fail}`);
     core.debug(`text_on_cancel: ${text_on_cancel}`);
-    core.debug(`username: ${username}`);
-    core.debug(`icon_emoji: ${icon_emoji}`);
-    core.debug(`icon_url: ${icon_url}`);
-    core.debug(`channel: ${channel}`);
     core.debug(`rawPayload: ${rawPayload}`);
 
     const client = new Client(
@@ -43,10 +35,6 @@ async function run(): Promise<void> {
         text_on_cancel,
         title,
         only_mention_fail,
-        username,
-        icon_emoji,
-        icon_url,
-        channel,
       },
       process.env.GITHUB_TOKEN,
       process.env.SLACK_WEBHOOK_URL,
