@@ -35,24 +35,54 @@ and arbitrary custom payloads.
 
 ## Inputs
 
-| key                 | required | default       | description |
-| ------------------- | :------: | ------------- | ----------- |
-| `status`            | yes      | —             | One of `success` / `failure` / `cancelled` / `custom`. Use `${{ job.status }}` for the first three. |
-| `text`              |          | `''`          | Override the default text on every status. |
-| `text_on_success`   |          | `''`          | Override text on success only (wins over `text`). |
-| `text_on_fail`      |          | `''`          | Override text on failure only (wins over `text`). |
-| `text_on_cancel`    |          | `''`          | Override text on cancellation only (wins over `text`). |
-| `title`             |          | workflow name | Attachment title. |
-| `mention`           |          | `''`          | `here` / `channel` / user ID (e.g. `U024BE7LH`), comma-separated for multiple. Mention always if specified. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users). |
-| `only_mention_fail` |          | `''`          | Same format as `mention`. Mention only on failure if specified. |
-| `payload`           |          | `''`          | **Only with `status: custom`.** A JavaScript object literal that replaces the default message. See [Custom Notification](#custom-notification). |
+### `status` *(required)*
+
+- **Value:** `success` / `failure` / `cancelled` / `custom`
+
+Use `${{ job.status }}` for the first three. Use `custom` together with
+[`payload`](#payload) when you want to send an arbitrary message.
+
+### `text`
+
+- **Default:** `''`
+
+Override the default text on every status.
+
+### `text_on_success` / `text_on_fail` / `text_on_cancel`
+
+- **Default:** `''`
+
+Override text only on the matching status. Wins over `text` for that
+status.
+
+### `title`
+
+- **Default:** workflow name
+
+Attachment title.
+
+### `mention` / `only_mention_fail`
+
+- **Default:** `''`
+- **Format:** `here` / `channel` / user ID (e.g. `U024BE7LH`), comma-separated for multiple
+
+`mention` always sends a mention; `only_mention_fail` sends one only
+when `status` is `failure`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users).
+
+### `payload`
+
+- **Required when:** `status: custom`
+- **Format:** JavaScript object literal
+
+Replaces the default message entirely. See
+[Custom Notification](#custom-notification).
 
 ### Required environment variables
 
-| name                | required | description |
-| ------------------- | :------: | ----------- |
-| `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions. |
-| `SLACK_WEBHOOK_URL` | yes      | Your Slack App Incoming Webhook URL (see [Slack App Setup](#slack-app-setup)). |
+- `GITHUB_TOKEN` — pass `${{ secrets.GITHUB_TOKEN }}`. Automatically
+  provided by GitHub Actions.
+- `SLACK_WEBHOOK_URL` — your Slack App Incoming Webhook URL (see
+  [Slack App Setup](#slack-app-setup)).
 
 ## Customize text and mentions
 
