@@ -34,12 +34,20 @@ Used for `SLACK_LEGACY_WEBHOOK_URL_FOR_INTEGRATION_TEST`.
 
 Caveats:
 
-- Slack is phasing out legacy custom integrations. If your workspace admin has
-  disabled "Custom Integrations", the create UI will be unavailable. Either
-  ask the admin to temporarily allow custom integrations, or fall back to using
-  a modern webhook URL for this secret as well — the action treats both URLs
-  the same way at runtime, so the integration test still exercises the same
-  code path.
+- Slack is phasing out legacy custom integrations. The admin toggle that used
+  to live under **Workspace settings → Permissions → Apps, Custom Integrations
+  & Sandbox** has been removed from the UI on many workspaces (newer
+  workspaces, Enterprise Grid org-managed workspaces, and workspaces that
+  Slack has already migrated). If you cannot find that toggle, the option is
+  not available to you — even as a workspace admin — and there is no path to
+  re-enable legacy webhook creation.
+- **Recommended fallback:** put a modern Slack App webhook URL into
+  `SLACK_LEGACY_WEBHOOK_URL_FOR_INTEGRATION_TEST` as well. The action's runtime
+  code is identical for both URL types (`new IncomingWebhook(url).send(...)`).
+  Modern webhooks silently ignore the `username` / `icon_emoji` override that
+  legacy webhooks honored, but they still return HTTP 200, so the "Legacy
+  Check" step passes. The only loss is the visible difference in the posted
+  message's sender name/icon — CI status and release readiness are unaffected.
 
 ### 3. Register the secrets on GitHub
 
