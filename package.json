@@ -44,7 +44,7 @@
     "@typescript-eslint/parser": "^2.13.0",
     "@vercel/ncc": "^0.38.1",
     "codecov": "^3.8.3",
-    "eslint": "^6.8.0",
+    "eslint": "^10.3.0",
     "eslint-plugin-github": "^3.4.0",
     "eslint-plugin-jest": "^23.1.1",
     "flow-bin": "^0.70.0",
