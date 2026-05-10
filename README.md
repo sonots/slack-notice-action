@@ -27,8 +27,8 @@ and arbitrary custom payloads.
     status: ${{ job.status }}
     only_mention_fail: 'channel'
   env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically supplied by GitHub
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Slack App Incoming Webhook URL
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # `secrets.GITHUB_TOKEN` is automatically provided by GitHub Actions
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Slack App Incoming Webhook URL which you must provide
   if: always() # Pick up events even if the job fails or is canceled.
 ```
 
@@ -44,12 +44,9 @@ and arbitrary custom payloads.
 | `text_on_fail`      | any string                                                 | `''`          | Overrides text on failure only. Wins over `text`.                                                                                                                                  |
 | `text_on_cancel`    | any string                                                 | `''`          | Overrides text on cancellation only. Wins over `text`.                                                                                                                             |
 | `title`             | any string                                                 | workflow name | `title` field of the attachment.                                                                                                                                                   |
-| `mention`           | `here` / `channel` / `user_id` (CSV for multiple)          | `''`          | Always mention. User ID looks like `U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users).                                      |
-| `only_mention_fail` | same as `mention`                                          | `''`          | Mention only on failure.                                                                                                                                                           |
+| `mention`           | `here` / `channel` / `user_id` (comma-separated for multiple) | `''`       | Mention always if specified. User ID looks like `U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users).                         |
+| `only_mention_fail` | same as `mention`                                          | `''`          | Mention only on failure if specified.                                                                                                                                              |
 | `payload`           | JavaScript object literal                                  | `''`          | **Only with `status: custom`.** Replaces the default message entirely. See [Custom Notification](#custom-notification).                                                            |
-
-Required environment variables: `GITHUB_TOKEN` (auto-supplied) and
-`SLACK_WEBHOOK_URL` (your Slack App Incoming Webhook).
 
 ## Custom Notification
 
@@ -95,10 +92,19 @@ References:
 
 ## Slack App Setup
 
-This action requires a **Slack App Incoming Webhook URL** as
-`SLACK_WEBHOOK_URL`. Step-by-step instructions for creating one and
-registering it as a GitHub repository secret are in
-[DEVELOPMENT.md](DEVELOPMENT.md#prepare-webhook-urls).
+This action requires a **Slack App Incoming Webhook URL**, which you
+store in the `SLACK_WEBHOOK_URL` repository secret.
+
+1. Open <https://api.slack.com/apps> and click **Create New App** → **From scratch**.
+2. Pick an app name and your workspace, then **Create App**.
+3. In the sidebar, open **Incoming Webhooks** and toggle the feature **On**.
+4. Click **Add New Webhook to Workspace**, choose the destination channel, and **Allow**.
+5. Copy the generated `https://hooks.slack.com/services/...` URL.
+6. Add it as a repository secret named `SLACK_WEBHOOK_URL`:
+   - GitHub UI: **Settings → Secrets and variables → Actions → New repository secret**, or
+   - CLI: `gh secret set SLACK_WEBHOOK_URL`
+
+Reference: [Slack: Sending messages using Incoming Webhooks](https://api.slack.com/messaging/webhooks).
 
 ## Migration & Changelog
 
