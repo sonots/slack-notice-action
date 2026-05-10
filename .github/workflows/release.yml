@@ -21,7 +21,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - uses: sonots/slack-notice-action@v4
+      - uses: sonots/slack-notice-action@v3
         with:
           status: ${{ job.status }}
         env:
