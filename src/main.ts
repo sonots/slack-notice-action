@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { Client } from './client';
+import { Client } from './client.js';
 import { IncomingWebhookSendArguments } from '@slack/webhook';
 
 async function run(): Promise<void> {

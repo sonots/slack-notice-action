@@ -20,9 +20,11 @@ export interface With {
 
 const groupMention = ['here', 'channel'];
 
+type Octokit = ReturnType<typeof github.getOctokit>;
+
 export class Client {
   private webhook: IncomingWebhook;
-  private octokit?: github.GitHub;
+  private octokit?: Octokit;
   private with: With;
 
   constructor(props: With, token?: string, webhookUrl?: string) {
@@ -32,7 +34,7 @@ export class Client {
       if (token === undefined) {
         throw new Error('Specify secrets.GITHUB_TOKEN');
       }
-      this.octokit = new github.GitHub(token);
+      this.octokit = github.getOctokit(token);
     }
 
     if (webhookUrl === undefined) {
@@ -98,12 +100,13 @@ export class Client {
     }
     const { sha } = github.context;
     const { owner, repo } = github.context.repo;
-    const commit = await this.octokit.repos.getCommit({
+    const commit = await this.octokit.rest.repos.getCommit({
       owner,
       repo,
       ref: sha,
     });
     const { author } = commit.data.commit;
+    const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
     const message = await this.message(commit.data.commit.message);
 
     return [
@@ -124,7 +127,7 @@ export class Client {
       },
       {
         title: 'author',
-        value: `${author.name}<${author.email}>`,
+        value: authorValue,
         short: false,
       },
       {
@@ -199,7 +202,7 @@ export class Client {
     const m = message.match(/Merge pull request #(\d+)/);
     if (m) {
       const pullNumber = parseInt(m[1]);
-      const { data: pullRequest } = await this.octokit.pulls.get({
+      const { data: pullRequest } = await this.octokit.rest.pulls.get({
         owner,
         repo,
         pull_number: pullNumber,

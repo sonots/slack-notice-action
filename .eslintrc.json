@@ -48,5 +48,12 @@
       "node": true,
       "es6": true,
       "jest/globals": true
+    },
+    "settings": {
+      "import/resolver": {
+        "typescript": {
+          "alwaysTryTypes": true
+        }
+      }
     }
   }
