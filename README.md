@@ -106,6 +106,54 @@ See also:
 - [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
 
 
+## Migrating from Legacy Incoming Webhook (v3 → v4)
+
+`v3` and earlier supported legacy custom-integration Incoming Webhooks
+and exposed `username` / `icon_emoji` / `icon_url` / `channel` inputs to
+override the sender and target channel per message.
+
+Slack has phased out legacy custom integrations, so `v4` only supports
+**Slack App** Incoming Webhooks. With Slack App webhooks, channel and
+sender appearance are configured **once on the Slack side** instead of
+per message, and those four inputs have therefore been removed.
+
+If you previously used those inputs, here is how to migrate:
+
+### `channel`: one webhook URL per channel
+
+A Slack App Incoming Webhook URL is permanently bound to the channel
+you pick when authorizing the app. To post to multiple channels, create
+multiple webhooks and reference each as a separate secret.
+
+1. Open <https://api.slack.com/apps> → your app → **Incoming Webhooks**
+2. Click **Add New Webhook to Workspace** and select the target channel
+3. Save the URL as a secret (e.g. `SLACK_WEBHOOK_URL_RELEASES`)
+4. Pass the right secret to `SLACK_WEBHOOK_URL` in each step
+
+```yaml
+- uses: sonots/slack-notice-action@v4
+  with:
+    status: ${{ job.status }}
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_RELEASES }}
+```
+
+### `username` / `icon_emoji` / `icon_url`: configure on the Slack App
+
+Slack App webhooks ignore per-message sender overrides. Set the name
+and icon on the app itself, and they apply to every webhook the app
+posts:
+
+1. Open <https://api.slack.com/apps> → your app → **Basic Information**
+2. Under **Display Information**, set the app name and icon
+3. Save — changes take effect immediately for all of the app's webhooks
+
+If you need different sender appearances for different notifications,
+create separate Slack Apps (each with its own name/icon) and use each
+app's webhook URL where appropriate.
+
+
 ## Special Thanks
 
 This orginally started as a fork of https://github.com/8398a7/action-slack. Thanks!
