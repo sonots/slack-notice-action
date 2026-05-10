@@ -76,7 +76,7 @@ async function run(): Promise<void> {
         );
     }
   } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(error instanceof Error ? error.message : String(error));
   }
 }
 
