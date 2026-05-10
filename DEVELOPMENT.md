@@ -17,7 +17,7 @@ Used for `SLACK_WEBHOOK_URL` and `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`.
 2. Pick an app name (e.g. `slack-notice-action-ci`) and the test workspace, then **Create App**.
 3. In the left sidebar, open **Incoming Webhooks** and toggle the feature **On**.
 4. Scroll down and click **Add New Webhook to Workspace**.
-5. Choose the channel that should receive test messages (a dedicated `#slack-notice-action-test` channel is recommended) and click **Allow**.
+5. Choose the channel that should receive test messages (a dedicated `#test_slack_notice_action` channel is recommended) and click **Allow**.
 6. Copy the generated `https://hooks.slack.com/services/T.../B.../...` URL.
 
 You can reuse the same URL for both `SLACK_WEBHOOK_URL` and
