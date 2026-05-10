@@ -1,12 +1,25 @@
 # Slack Notice Action
 
-![](https://github.com/sonots/slack-notice-action/workflows/build-test/badge.svg)
-![](https://github.com/sonots/slack-notice-action/workflows/Slack%20Mainline/badge.svg)
-![](https://img.shields.io/github/license/sonots/slack-notice-action?color=brightgreen)
-![](https://img.shields.io/github/v/release/sonots/slack-notice-action?color=brightgreen)
-[![codecov](https://codecov.io/gh/sonots/slack-notice-action/branch/master/graph/badge.svg)](https://codecov.io/gh/sonots/slack-notice-action)
+[![Slack Mainline](https://github.com/sonots/slack-notice-action/workflows/Slack%20Mainline/badge.svg)](https://github.com/sonots/slack-notice-action/actions/workflows/slack-mainline.yml)
+[![release](https://img.shields.io/github/v/release/sonots/slack-notice-action?color=brightgreen)](https://github.com/sonots/slack-notice-action/releases)
+[![license](https://img.shields.io/github/license/sonots/slack-notice-action?color=brightgreen)](LICENSE)
 
-Yet Another GitHub Action to notify slack.
+A GitHub Action that posts job-status notifications to Slack via an
+Incoming Webhook. Pass `${{ job.status }}` and you get a colored success
+/ failure / cancellation message with commit, author, and workflow link.
+Supports `@here` / `@channel` / user-id mentions, mention-only-on-failure,
+and arbitrary custom payloads.
+
+## Contents
+
+- [Quick Start](#quick-start)
+- [Input Parameters](#input-parameters)
+- [Environment Variables](#environment-variables)
+- [Custom Text and Mentions](#custom-text-and-mentions)
+- [Custom Payload](#custom-payload)
+- [Screenshots](#screenshots)
+- [Slack App Setup](#slack-app-setup)
+- [Migration & Changelog](#migration--changelog)
 
 ## Quick Start
 
@@ -16,52 +29,61 @@ Yet Another GitHub Action to notify slack.
     status: ${{ job.status }}
     only_mention_fail: 'channel'
   env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required, but this should be automatically supplied by GitHub.
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Required. A Slack App Incoming Webhook URL.
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # `secrets.GITHUB_TOKEN` is automatically provided by GitHub Actions
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Slack App Incoming Webhook URL which you must provide
   if: always() # Pick up events even if the job fails or is canceled.
 ```
 
-<img width="360" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
+## Input Parameters
 
-## Usage
+| Key                 | Value                                                                           | Default       | Description                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
+| `status`            | <ul><li>`success`</li><li>`failure`</li><li>`cancelled`</li><li>`custom`</li></ul> | —           | **Required.** Use `${{ job.status }}` for the first three.                                               |
+| `text`              | any string                                                                      | `''`          | Override the default text on every status.                                                               |
+| `text_on_success`   | any string                                                                      | `''`          | Override text on success only. Wins over `text`.                                                         |
+| `text_on_fail`      | any string                                                                      | `''`          | Override text on failure only. Wins over `text`.                                                         |
+| `text_on_cancel`    | any string                                                                      | `''`          | Override text on cancellation only. Wins over `text`.                                                    |
+| `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
+| `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
+| `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
+| `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
 
-### with Parameters
+[mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
 
-| key               | value                                                      | default               | description                               |
-| ----------------- | ---------------------------------------------------------- | --------------------- | ------------------------------------------|
-| status            | `success` or `failure` or `cancelled` or `custom`          | ''                    | Use `${{ job.status }}`.                  |
-| text              | any string                                                 | ''                    | `text` field                              |
-| text_on_success   | any string                                                 | ''                    | `text` field on success                   |
-| text_on_fail      | any string                                                 | ''                    | `text` field on failure                   |
-| text_on_cancel    | any string                                                 | ''                    | `text` field on cancellation              |
-| title             | any string                                                 | workflow name         | `title` field                             |
-| mention           | `here` or `channel` or user\_id such as `user_id,user_id2` | ''                    | Mention always if specified. The user ID should be an ID, such as `@U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users) |
-| only_mention_fail | `here` or `channel` or user\_id such as `user_id,user_id2` | ''                    | Mention only on failure if specified      |
+## Environment Variables
 
-Custom notification. See [Custom Notification](https://github.com/sonots/slack-notice-action#custom-notification) for details.
+| Name                | Required | Description                                                                                  |
+| ------------------- | :------: | -------------------------------------------------------------------------------------------- |
+| `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions.                |
+| `SLACK_WEBHOOK_URL` | yes      | Your Slack App Incoming Webhook URL (see [Slack App Setup](#slack-app-setup)).               |
 
-| key               | value | default  | description                                                                                                 |
-| ----------------- | ----- | ---------| ----------------------------------------------------------------------------------------------------------- |
-| payload           |       | ''       | Only available when status: custom. The payload format can pass javascript object.                          |
+## Custom Text and Mentions
 
-## Example
+Override the default message text per status and control who gets
+mentioned. `text_on_*` wins over `text`, and `only_mention_fail` only
+fires when `status` is `failure`.
 
-In case of success:
+```yaml
+- uses: sonots/slack-notice-action@v4
+  with:
+    status: ${{ job.status }}
+    title: 'Build & Test'
+    text_on_success: ':white_check_mark: All checks passed!'
+    text_on_fail: ':rotating_light: Build broke — please investigate.'
+    text_on_cancel: ':warning: Job was cancelled.'
+    mention: 'channel'                          # always mentions @channel
+    only_mention_fail: 'U024BE7LH,U987XYZAB'    # mentions these users only on failure
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  if: always()
+```
 
-<img width="360" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
+## Custom Payload
 
-In case of failure:
-
-<img width="360" alt="failure" src="https://user-images.githubusercontent.com/2290461/71901854-26964000-31a4-11ea-9386-bec251a8a550.png" />
-
-In case of cancellation:
-
-<img width="360" alt="canceled" src="https://user-images.githubusercontent.com/2290461/71901862-2dbd4e00-31a4-11ea-99ea-9c1b37abe443.png" />
-
-## Example: Custom Notification
-
-Use `status: custom` if you want to send an arbitrary payload.
-The payload format can pass javascript object.
+Use `status: custom` when you want full control over the Slack payload.
+The `payload` input is evaluated as a JavaScript object literal, so you
+can use template strings and runtime expressions.
 
 ```yaml
 - uses: sonots/slack-notice-action@v4
@@ -71,93 +93,56 @@ The payload format can pass javascript object.
       {
         text: "Custom Field Check",
         attachments: [{
-          "author_name": "sonots@slack-notice-action", // json
+          author_name: "sonots@slack-notice-action",
           fallback: 'fallback',
           color: 'good',
           title: 'CI Result',
           text: 'Succeeded',
-          fields: [{
-            title: 'lower case',
-            value: 'LOWER CASE CHECK'.toLowerCase(),
-            short: true
-          },
-          {
-            title: 'reverse',
-            value: 'gnirts esrever'.split('').reverse().join(''),
-            short: true
-          },
-          {
-            title: 'long title1',
-            value: 'long value1',
-            short: false
-          }],
-          actions: [{
-          }]
+          fields: [
+            { title: 'lower case', value: 'LOWER CASE CHECK'.toLowerCase(), short: true },
+            { title: 'reverse',    value: 'gnirts esrever'.split('').reverse().join(''), short: true },
+            { title: 'long title', value: 'long value', short: false },
+          ]
         }]
       }
   env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # optional
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-```
-
-See also:
-
-- [Message Builder](https://api.slack.com/docs/messages/builder)
-- [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
-
-
-## Migrating from Legacy Incoming Webhook (v3 → v4)
-
-`v3` and earlier supported legacy custom-integration Incoming Webhooks
-and exposed `username` / `icon_emoji` / `icon_url` / `channel` inputs to
-override the sender and target channel per message.
-
-Slack has phased out legacy custom integrations, so `v4` only supports
-**Slack App** Incoming Webhooks. With Slack App webhooks, channel and
-sender appearance are configured **once on the Slack side** instead of
-per message, and those four inputs have therefore been removed.
-
-If you previously used those inputs, here is how to migrate:
-
-### `channel`: choose the channel when creating the webhook
-
-A Slack App Incoming Webhook URL is permanently bound to the channel
-you pick when authorizing the app. There is no way to override it at
-post time, so you choose the destination once on the Slack side:
-
-1. Open <https://api.slack.com/apps> → your app → **Incoming Webhooks**
-2. Click **Add New Webhook to Workspace** and select the target channel
-3. Save the URL as the `SLACK_WEBHOOK_URL` secret
-
-If you need to post to multiple channels, repeat steps 2–3 for each
-channel and store each URL as its own secret (e.g.
-`SLACK_WEBHOOK_URL_RELEASES`, `SLACK_WEBHOOK_URL_ALERTS`), then pass
-whichever one a given step needs:
-
-```yaml
-- uses: sonots/slack-notice-action@v4
-  with:
-    status: ${{ job.status }}
-  env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_RELEASES }}
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
 
-### `username` / `icon_emoji` / `icon_url`: configure on the Slack App
+References:
 
-Slack App webhooks ignore per-message sender overrides. Set the name
-and icon on the app itself, and they apply to every webhook the app
-posts:
+- [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
+- [Block Kit Builder](https://app.slack.com/block-kit-builder) — for richer layouts using `blocks` instead of `attachments`
 
-1. Open <https://api.slack.com/apps> → your app → **Basic Information**
-2. Under **Display Information**, set the app name and icon
-3. Save — changes take effect immediately for all of the app's webhooks
+## Screenshots
 
-If you need different sender appearances for different notifications,
-create separate Slack Apps (each with its own name/icon) and use each
-app's webhook URL where appropriate.
+| Success | Failure | Cancellation |
+|---|---|---|
+| <img width="280" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" /> | <img width="280" alt="failure" src="https://user-images.githubusercontent.com/2290461/71901854-26964000-31a4-11ea-9386-bec251a8a550.png" /> | <img width="280" alt="canceled" src="https://user-images.githubusercontent.com/2290461/71901862-2dbd4e00-31a4-11ea-99ea-9c1b37abe443.png" /> |
 
+## Slack App Setup
+
+This action requires a **Slack App Incoming Webhook URL**, which you
+store in the `SLACK_WEBHOOK_URL` repository secret.
+
+1. Open <https://api.slack.com/apps> and click **Create New App** → **From scratch**.
+2. Pick an app name and your workspace, then **Create App**.
+3. In the sidebar, open **Incoming Webhooks** and toggle the feature **On**.
+4. Click **Add New Webhook to Workspace**, choose the destination channel, and **Allow**.
+5. Copy the generated `https://hooks.slack.com/services/...` URL.
+6. Add it as a repository secret named `SLACK_WEBHOOK_URL`:
+   - GitHub UI: **Settings → Secrets and variables → Actions → New repository secret**, or
+   - CLI: `gh secret set SLACK_WEBHOOK_URL`
+
+Reference: [Slack: Sending messages using Incoming Webhooks](https://api.slack.com/messaging/webhooks).
+
+## Migration & Changelog
+
+- **Upgrading from v3?** See the [v3 → v4 migration guide](CHANGELOG.md#migration-guide-v3--v4)
+  in `CHANGELOG.md`.
+- Full release history: [CHANGELOG.md](CHANGELOG.md)
 
 ## Special Thanks
 
-This orginally started as a fork of https://github.com/8398a7/action-slack. Thanks!
+This originally started as a fork of <https://github.com/8398a7/action-slack>. Thanks!
