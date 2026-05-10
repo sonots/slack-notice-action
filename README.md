@@ -119,16 +119,20 @@ per message, and those four inputs have therefore been removed.
 
 If you previously used those inputs, here is how to migrate:
 
-### `channel`: one webhook URL per channel
+### `channel`: choose the channel when creating the webhook
 
 A Slack App Incoming Webhook URL is permanently bound to the channel
-you pick when authorizing the app. To post to multiple channels, create
-multiple webhooks and reference each as a separate secret.
+you pick when authorizing the app. There is no way to override it at
+post time, so you choose the destination once on the Slack side:
 
 1. Open <https://api.slack.com/apps> → your app → **Incoming Webhooks**
 2. Click **Add New Webhook to Workspace** and select the target channel
-3. Save the URL as a secret (e.g. `SLACK_WEBHOOK_URL_RELEASES`)
-4. Pass the right secret to `SLACK_WEBHOOK_URL` in each step
+3. Save the URL as the `SLACK_WEBHOOK_URL` secret
+
+If you need to post to multiple channels, repeat steps 2–3 for each
+channel and store each URL as its own secret (e.g.
+`SLACK_WEBHOOK_URL_RELEASES`, `SLACK_WEBHOOK_URL_ALERTS`), then pass
+whichever one a given step needs:
 
 ```yaml
 - uses: sonots/slack-notice-action@v4
