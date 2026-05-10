@@ -15,7 +15,7 @@ and arbitrary custom payloads.
 - [Quick Start](#quick-start)
 - [Input Parameters](#input-parameters)
 - [Environment Variables](#environment-variables)
-- [Custom text and mentions](#custom-text-and-mentions)
+- [Custom Text and Mentions](#custom-text-and-mentions)
 - [Custom Payload](#custom-payload)
 - [Screenshots](#screenshots)
 - [Slack App Setup](#slack-app-setup)
@@ -36,31 +36,28 @@ and arbitrary custom payloads.
 
 ## Input Parameters
 
-| key                 | value                                                            | default       | description                                                                                            |
-| ------------------- | ---------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------ |
-| `status`            | `success` / `failure` / `cancelled` / `custom`                   | —             | **Required.** Use `${{ job.status }}` for the first three.                                             |
-| `text`              | any string                                                       | `''`          | Override the default text on every status.                                                             |
-| `text_on_success`   | any string                                                       | `''`          | Override text on success only. Wins over `text`.                                                       |
-| `text_on_fail`      | any string                                                       | `''`          | Override text on failure only. Wins over `text`.                                                       |
-| `text_on_cancel`    | any string                                                       | `''`          | Override text on cancellation only. Wins over `text`.                                                  |
-| `title`             | any string                                                       | workflow name | Attachment title.                                                                                      |
-| `mention`           | `here` / `channel` / user ID, comma-separated for multiple       | `''`          | Mention always if specified. See [Mentioning Users][mentioning-users].                                 |
-| `only_mention_fail` | same as `mention`                                                | `''`          | Mention only on failure if specified.                                                                  |
-| `payload`           | JavaScript object literal                                        | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
+| Key                 | Value                                                                           | Default       | Description                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
+| `status`            | <ul><li>`success`</li><li>`failure`</li><li>`cancelled`</li><li>`custom`</li></ul> | —           | **Required.** Use `${{ job.status }}` for the first three.                                               |
+| `text`              | any string                                                                      | `''`          | Override the default text on every status.                                                               |
+| `text_on_success`   | any string                                                                      | `''`          | Override text on success only. Wins over `text`.                                                         |
+| `text_on_fail`      | any string                                                                      | `''`          | Override text on failure only. Wins over `text`.                                                         |
+| `text_on_cancel`    | any string                                                                      | `''`          | Override text on cancellation only. Wins over `text`.                                                    |
+| `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
+| `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
+| `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
+| `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
 
-User IDs look like `U024BE7LH`; comma-separate them for multiple users
-(e.g. `U024BE7LH,U987XYZAB`).
-
 ## Environment Variables
 
-| name                | required | description                                                                                  |
+| Name                | Required | Description                                                                                  |
 | ------------------- | :------: | -------------------------------------------------------------------------------------------- |
 | `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions.                |
 | `SLACK_WEBHOOK_URL` | yes      | Your Slack App Incoming Webhook URL (see [Slack App Setup](#slack-app-setup)).               |
 
-## Custom text and mentions
+## Custom Text and Mentions
 
 Override the default message text per status and control who gets
 mentioned. `text_on_*` wins over `text`, and `only_mention_fail` only

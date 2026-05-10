@@ -2,7 +2,7 @@
 
 ## v4.0.0
 
-### Breaking changes
+### Breaking Changes
 
 - **Drop legacy Incoming Webhook support.** The `username`, `icon_emoji`,
   `icon_url`, and `channel` inputs are removed. Slack has phased out legacy
@@ -15,7 +15,7 @@
   `octokit.rest.*` instead of the v2-era `octokit.repos.*` / `octokit.pulls.*`.
   This is invisible to users but worth noting for forks.
 
-### Migration guide (v3 → v4)
+### Migration Guide (v3 → v4)
 
 `v3` and earlier supported legacy custom-integration Incoming Webhooks
 and exposed `username` / `icon_emoji` / `icon_url` / `channel` inputs to
