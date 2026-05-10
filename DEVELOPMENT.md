@@ -41,6 +41,13 @@ Caveats:
   Slack has already migrated). If you cannot find that toggle, the option is
   not available to you — even as a workspace admin — and there is no path to
   re-enable legacy webhook creation.
+- On migrated workspaces the section may still be visible under a renamed
+  heading such as **"Apps & Custom Integrations"** with a description like
+  *"Manage permissions for apps and integrations from the Slack Marketplace"*.
+  Despite the name, this surface now governs **marketplace app installation
+  approval only**; the legacy custom-integration creation control has been
+  stripped out. Seeing this section does not mean legacy webhooks can be
+  created — they cannot.
 - **Recommended fallback:** put a modern Slack App webhook URL into
   `SLACK_LEGACY_WEBHOOK_URL_FOR_INTEGRATION_TEST` as well. The action's runtime
   code is identical for both URL types (`new IncomingWebhook(url).send(...)`).
