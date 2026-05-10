@@ -12,10 +12,6 @@ export interface With {
   text_on_cancel: string;
   title: string;
   only_mention_fail: string;
-  username: string;
-  icon_emoji: string;
-  icon_url: string;
-  channel: string;
 }
 
 const groupMention = ['here', 'channel'];
@@ -76,14 +72,9 @@ export class Client {
 
   private async payloadTemplate() {
     const text = this.mentionText(this.with.mention);
-    const { username, icon_emoji, icon_url, channel } = this.with;
 
     return {
       text,
-      username,
-      icon_emoji,
-      icon_url,
-      channel,
       attachments: [
         {
           color: '',
