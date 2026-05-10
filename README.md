@@ -32,21 +32,26 @@ and arbitrary custom payloads.
   if: always() # Pick up events even if the job fails or is canceled.
 ```
 
-<img width="360" alt="success" src="https://user-images.githubusercontent.com/2290461/71901838-1bdbab00-31a4-11ea-9fde-110b6acdab4e.png" />
-
 ## Inputs
 
-| key                 | value                                                      | default       | notes                                                                                                                                                                              |
-| ------------------- | ---------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `status`            | `success` / `failure` / `cancelled` / `custom`             | —             | Required. Use `${{ job.status }}` for the first three.                                                                                                                             |
-| `text`              | any string                                                 | `''`          | Overrides the default text on every status.                                                                                                                                        |
-| `text_on_success`   | any string                                                 | `''`          | Overrides text on success only. Wins over `text`.                                                                                                                                  |
-| `text_on_fail`      | any string                                                 | `''`          | Overrides text on failure only. Wins over `text`.                                                                                                                                  |
-| `text_on_cancel`    | any string                                                 | `''`          | Overrides text on cancellation only. Wins over `text`.                                                                                                                             |
-| `title`             | any string                                                 | workflow name | `title` field of the attachment.                                                                                                                                                   |
-| `mention`           | `here` / `channel` / `user_id` (comma-separated for multiple) | `''`       | Mention always if specified. User ID looks like `U024BE7LH`. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users).                         |
-| `only_mention_fail` | same as `mention`                                          | `''`          | Mention only on failure if specified.                                                                                                                                              |
-| `payload`           | JavaScript object literal                                  | `''`          | **Only with `status: custom`.** Replaces the default message entirely. See [Custom Notification](#custom-notification).                                                            |
+| key                 | required | default       | description |
+| ------------------- | :------: | ------------- | ----------- |
+| `status`            | yes      | —             | One of `success` / `failure` / `cancelled` / `custom`. Use `${{ job.status }}` for the first three. |
+| `text`              |          | `''`          | Override the default text on every status. |
+| `text_on_success`   |          | `''`          | Override text on success only (wins over `text`). |
+| `text_on_fail`      |          | `''`          | Override text on failure only (wins over `text`). |
+| `text_on_cancel`    |          | `''`          | Override text on cancellation only (wins over `text`). |
+| `title`             |          | workflow name | Attachment title. |
+| `mention`           |          | `''`          | `here` / `channel` / user ID (e.g. `U024BE7LH`), comma-separated for multiple. Mention always if specified. See [Mentioning Users](https://api.slack.com/reference/surfaces/formatting#mentioning-users). |
+| `only_mention_fail` |          | `''`          | Same format as `mention`. Mention only on failure if specified. |
+| `payload`           |          | `''`          | **Only with `status: custom`.** A JavaScript object literal that replaces the default message. See [Custom Notification](#custom-notification). |
+
+### Required environment variables
+
+| name                | required | description |
+| ------------------- | :------: | ----------- |
+| `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions. |
+| `SLACK_WEBHOOK_URL` | yes      | Your Slack App Incoming Webhook URL (see [Slack App Setup](#slack-app-setup)). |
 
 ## Custom Notification
 
