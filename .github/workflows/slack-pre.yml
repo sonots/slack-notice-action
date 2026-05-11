@@ -5,8 +5,20 @@ on:
       - pre
 
 jobs:
+  failure-source:
+    # This job intentionally fails to provide a real `step.conclusion: failure`
+    # entry for the `failed_steps` integration check below. `continue-on-error`
+    # at job level lets the run still complete green overall.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Intentional Failure (for failed_steps test)
+        run: exit 1
+
   notification:
     runs-on: ubuntu-latest
+    needs: failure-source
+    if: always()
     steps:
       - name: Succeeded Check
         uses: sonots/slack-notice-action@pre
@@ -65,15 +77,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
-      - name: Intentional Failure (for failed_steps test)
-        id: intentional-failure
-        run: exit 1
-        continue-on-error: true
       - name: Failed Steps Check
         uses: sonots/slack-notice-action@pre
         with:
           status: failure
-          text_on_fail: 'failed_steps test: the intentional failure above should be listed in the failed_steps field'
+          text_on_fail: 'failed_steps test: the failure-source job''s Intentional Failure step should appear in failed_steps'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}

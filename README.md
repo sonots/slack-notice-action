@@ -109,9 +109,8 @@ The default message includes the following fields:
 | Field           | Notes                                                                                    |
 | --------------- | ---------------------------------------------------------------------------------------- |
 | `repo`          | Repository link.                                                                         |
-| `branch` / `tag`| Derived from `GITHUB_REF`. Falls back to `ref` for refs like `refs/pull/.../merge`.      |
+| `ref`           | Short branch/tag name linked to `tree/<name>` on GitHub. Raw ref for unusual refs (e.g. `refs/pull/.../merge`). |
 | `commit`        | Commit SHA linked to GitHub.                                                             |
-| `diff`          | Compare URL (push events only — uses `payload.compare`).                                 |
 | `author`        | Commit author name and email.                                                            |
 | `message`       | Commit message. Merge-commit PR bodies are appended.                                     |
 | `pull_request`  | PR number, title, and link (`pull_request` / `pull_request_target` events only).         |
