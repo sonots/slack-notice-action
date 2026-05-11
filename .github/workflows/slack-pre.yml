@@ -65,6 +65,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
+      - name: Intentional Failure (for failed_steps test)
+        id: intentional-failure
+        run: exit 1
+        continue-on-error: true
+      - name: Failed Steps Check
+        uses: sonots/slack-notice-action@pre
+        with:
+          status: failure
+          text_on_fail: 'failed_steps test: the intentional failure above should be listed in the failed_steps field'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
+      - name: Notice On Skip Check (should NOT post)
+        uses: sonots/slack-notice-action@pre
+        with:
+          status: success
+          notice_on: failure
+          text_on_success: 'YOU SHOULD NOT SEE THIS — notice_on=failure on success should skip'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
+      - name: Notice On Allow Check (should post)
+        uses: sonots/slack-notice-action@pre
+        with:
+          status: success
+          notice_on: success,failure
+          text_on_success: 'notice_on=success,failure → this success message should be visible'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
       - name: Check
         uses: sonots/slack-notice-action@pre
         with:

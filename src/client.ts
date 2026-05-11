@@ -12,6 +12,13 @@ export interface With {
   text_on_cancel: string;
   title: string;
   only_mention_fail: string;
+  notice_on: string;
+}
+
+interface Field {
+  title: string;
+  value: string;
+  short: boolean;
 }
 
 const groupMention = ['here', 'channel'];
@@ -37,6 +44,17 @@ export class Client {
       throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
     }
     this.webhook = new IncomingWebhook(webhookUrl);
+  }
+
+  shouldNotice(status: string): boolean {
+    const raw = this.with.notice_on;
+    if (raw === '') return true;
+    const allowed = raw
+      .split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(s => s !== '');
+    if (allowed.length === 0) return true;
+    return allowed.includes(status.toLowerCase());
   }
 
   async success() {
@@ -85,7 +103,7 @@ export class Client {
     };
   }
 
-  private async fields() {
+  private async fields(): Promise<Field[]> {
     if (this.octokit === undefined) {
       throw Error('Specify secrets.GITHUB_TOKEN');
     }
@@ -100,22 +118,19 @@ export class Client {
     const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
     const message = await this.message(commit.data.commit.message);
 
-    return [
+    const fields: Array<Field | null> = [
       {
         title: 'repo',
         value: this.repositoryLink,
         short: false,
       },
-      {
-        title: 'ref',
-        value: github.context.ref,
-        short: false,
-      },
+      this.refField,
       {
         title: 'commit',
         value: this.commitLink,
         short: false,
       },
+      this.compareField,
       {
         title: 'author',
         value: authorValue,
@@ -126,12 +141,16 @@ export class Client {
         value: message,
         short: false,
       },
+      this.pullRequestField,
       {
         title: 'workflow',
         value: this.workflowLink,
         short: false,
       },
+      await this.failedStepsField(),
     ];
+
+    return fields.filter((f): f is Field => f !== null);
   }
 
   private get textSuccess() {
@@ -182,6 +201,73 @@ export class Client {
     const { owner, repo } = github.context.repo;
 
     return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
+  }
+
+  private get refField(): Field {
+    const ref = github.context.ref;
+    const branchMatch = ref.match(/^refs\/heads\/(.+)$/);
+    if (branchMatch) {
+      return { title: 'branch', value: branchMatch[1], short: false };
+    }
+    const tagMatch = ref.match(/^refs\/tags\/(.+)$/);
+    if (tagMatch) {
+      return { title: 'tag', value: tagMatch[1], short: false };
+    }
+    return { title: 'ref', value: ref, short: false };
+  }
+
+  private get compareField(): Field | null {
+    const compare = (github.context.payload as { compare?: unknown }).compare;
+    if (typeof compare !== 'string' || compare === '') return null;
+    return { title: 'diff', value: `<${compare}|compare>`, short: false };
+  }
+
+  private get pullRequestField(): Field | null {
+    const pr = github.context.payload.pull_request;
+    if (!pr) return null;
+    const number = pr.number;
+    const title = (pr as { title?: string }).title ?? '';
+    const url = (pr as { html_url?: string }).html_url ?? '';
+    if (!url) return null;
+    return {
+      title: 'pull_request',
+      value: `<${url}|#${number}> ${title}`,
+      short: false,
+    };
+  }
+
+  private async failedStepsField(): Promise<Field | null> {
+    if (this.with.status.toLowerCase() !== 'failure') return null;
+    if (this.octokit === undefined) return null;
+    const { owner, repo } = github.context.repo;
+    try {
+      const { data } = await this.octokit.rest.actions.listJobsForWorkflowRun({
+        owner,
+        repo,
+        run_id: parseInt(this.runId, 10),
+      });
+      const failed: string[] = [];
+      for (const job of data.jobs) {
+        if (job.conclusion !== 'failure') continue;
+        const steps = job.steps ?? [];
+        for (const step of steps) {
+          if (step.conclusion === 'failure') {
+            failed.push(`${job.name} > ${step.name}`);
+          }
+        }
+      }
+      if (failed.length === 0) return null;
+      return {
+        title: 'failed_steps',
+        value: failed.map(s => `• ${s}`).join('\n'),
+        short: false,
+      };
+    } catch (e) {
+      core.debug(
+        `failedStepsField error: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      return null;
+    }
   }
 
   private async message(message: string) {
