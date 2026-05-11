@@ -4,11 +4,12 @@
 [![release](https://img.shields.io/github/v/release/sonots/slack-notice-action?color=brightgreen)](https://github.com/sonots/slack-notice-action/releases)
 [![license](https://img.shields.io/github/license/sonots/slack-notice-action?color=brightgreen)](LICENSE)
 
-A GitHub Action that posts job-status notifications to Slack via an
-Incoming Webhook. Pass `${{ job.status }}` and you get a colored success
-/ failure / cancellation message with commit, author, and workflow link.
-Supports `@here` / `@channel` / user-id mentions, mention-only-on-failure,
-and arbitrary custom payloads.
+A GitHub Action that posts job-status notifications to Slack. Pass
+`${{ job.status }}` and you get a colored success / failure /
+cancellation message with commit, author, and workflow link. Supports
+`@here` / `@channel` / user-id mentions, mention-only-on-failure, and
+arbitrary custom payloads. Works with either a Slack App **Incoming
+Webhook URL** or a **Bot Token**.
 
 ## Contents
 
@@ -16,7 +17,9 @@ and arbitrary custom payloads.
 - [Input Parameters](#input-parameters)
 - [Environment Variables](#environment-variables)
 - [Custom Text and Mentions](#custom-text-and-mentions)
+- [Bot Token Mode](#bot-token-mode)
 - [Custom Payload](#custom-payload)
+- [Outputs](#outputs)
 - [Screenshots](#screenshots)
 - [Slack App Setup](#slack-app-setup)
 - [Migration & Changelog](#migration--changelog)
@@ -46,6 +49,11 @@ and arbitrary custom payloads.
 | `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
 | `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
 | `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
+| `channel`           | channel ID (e.g. `C0123456789`) or `#name`                                      | `''`          | **Required in Bot Token mode.** Ignored in Webhook mode.                                                 |
+| `username`          | any string                                                                      | `''`          | Override bot display name. **Bot Token mode only.**                                                      |
+| `icon_emoji`        | `:emoji:`                                                                       | `''`          | Override bot icon with an emoji. **Bot Token mode only.**                                                |
+| `icon_url`          | image URL                                                                       | `''`          | Override bot icon with an image URL. **Bot Token mode only.**                                            |
+| `update_ts`         | Slack message `ts`                                                              | `''`          | Update an existing message instead of posting a new one. **Bot Token mode only.**                       |
 | `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
@@ -55,7 +63,8 @@ and arbitrary custom payloads.
 | Name                | Required | Description                                                                                  |
 | ------------------- | :------: | -------------------------------------------------------------------------------------------- |
 | `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions.                |
-| `SLACK_WEBHOOK_URL` | yes      | Your Slack App Incoming Webhook URL (see [Slack App Setup](#slack-app-setup)).               |
+| `SLACK_WEBHOOK_URL` | one of   | Slack App Incoming Webhook URL. Triggers **Webhook mode**.                                   |
+| `SLACK_BOT_TOKEN`   | one of   | Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
 
 ## Custom Text and Mentions
 
@@ -78,6 +87,69 @@ fires when `status` is `failure`.
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   if: always()
 ```
+
+## Bot Token Mode
+
+Use a **Bot Token** instead of an Incoming Webhook to unlock features
+that modern webhooks no longer support:
+
+- Choose `channel` at post time (route prod alerts to `#alerts`, PR
+  noise to `#ci-noisy`, etc.)
+- Override `username` / `icon_emoji` / `icon_url` per message
+- Update a previously-posted message via `update_ts`
+
+```yaml
+- id: notify
+  uses: sonots/slack-notice-action@v4
+  with:
+    status: ${{ job.status }}
+    channel: '#alerts'
+    username: 'CI Bot (prod)'
+    icon_emoji: ':rocket:'
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+```
+
+To update the same message from a later step (e.g. mark "in progress" → "done"):
+
+```yaml
+- id: start
+  uses: sonots/slack-notice-action@v4
+  with:
+    status: custom
+    channel: '#alerts'
+    payload: |
+      { text: ':hourglass_flowing_sand: Deploying…' }
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+- run: ./deploy.sh
+
+- uses: sonots/slack-notice-action@v4
+  if: always()
+  with:
+    status: ${{ job.status }}
+    channel: '#alerts'
+    update_ts: ${{ steps.start.outputs.ts }}
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+```
+
+### Required Slack scopes
+
+Set under your Slack App's **OAuth & Permissions → Bot Token Scopes**:
+
+| Scope                   | Why                                                        |
+| ----------------------- | ---------------------------------------------------------- |
+| `chat:write`            | Post / update messages.                                    |
+| `chat:write.customize`  | Override `username` / `icon_emoji` / `icon_url`.           |
+| `chat:write.public`     | Post to public channels without inviting the bot first.    |
+
+Reinstall the app to the workspace after changing scopes, then copy the
+**Bot User OAuth Token** (`xoxb-…`) into the `SLACK_BOT_TOKEN` secret.
 
 ## Custom Payload
 
@@ -114,6 +186,12 @@ References:
 
 - [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
 - [Block Kit Builder](https://app.slack.com/block-kit-builder) — for richer layouts using `blocks` instead of `attachments`
+
+## Outputs
+
+| Name | Description                                                                                  |
+| ---- | -------------------------------------------------------------------------------------------- |
+| `ts` | Slack message timestamp of the posted/updated message. **Bot Token mode only**; empty in Webhook mode. Use with `update_ts` to chain edits. |
 
 ## Screenshots
 

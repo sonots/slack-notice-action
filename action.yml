@@ -24,6 +24,37 @@ inputs:
   text:
     description: You can overwrite text.
     default: ''
+  channel:
+    description: |
+      Slack channel ID or name (e.g. `C0123456789` or `#alerts`).
+      Required when using Bot Token mode (`SLACK_BOT_TOKEN`). Ignored
+      in Webhook mode (the channel is fixed by the webhook URL).
+    default: ''
+  username:
+    description: |
+      Override the bot display name for this message. Bot Token mode
+      only — Slack ignores this in Webhook mode.
+    default: ''
+  icon_emoji:
+    description: |
+      Override the bot icon for this message with an emoji
+      (e.g. `:rocket:`). Bot Token mode only.
+    default: ''
+  icon_url:
+    description: |
+      Override the bot icon for this message with an image URL.
+      Bot Token mode only.
+    default: ''
+  update_ts:
+    description: |
+      Slack message `ts` to update instead of posting a new message.
+      Bot Token mode only. Pair with the `ts` output of a previous step.
+    default: ''
+outputs:
+  ts:
+    description: |
+      Slack message timestamp (`ts`) of the posted/updated message.
+      Bot Token mode only. Empty in Webhook mode.
 runs:
   using: node24
   main: dist/index.js
