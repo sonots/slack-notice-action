@@ -70389,6 +70389,18 @@ class Client {
         }
         this.webhook = new dist/* IncomingWebhook */.iv(webhookUrl);
     }
+    shouldNotice(status) {
+        const raw = this.with.notice_on;
+        if (raw === '')
+            return true;
+        const allowed = raw
+            .split(',')
+            .map(s => s.trim().toLowerCase())
+            .filter(s => s !== '');
+        if (allowed.length === 0)
+            return true;
+        return allowed.includes(status.toLowerCase());
+    }
     async success() {
         const template = await this.payloadTemplate();
         template.attachments[0].color = 'good';
@@ -70440,22 +70452,19 @@ class Client {
         const { author } = commit.data.commit;
         const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
         const message = await this.message(commit.data.commit.message);
-        return [
+        const fields = [
             {
                 title: 'repo',
                 value: this.repositoryLink,
                 short: false,
             },
-            {
-                title: 'ref',
-                value: github_context.ref,
-                short: false,
-            },
+            this.refField,
             {
                 title: 'commit',
                 value: this.commitLink,
                 short: false,
             },
+            this.compareField,
             {
                 title: 'author',
                 value: authorValue,
@@ -70466,12 +70475,15 @@ class Client {
                 value: message,
                 short: false,
             },
+            this.pullRequestField,
             {
                 title: 'workflow',
                 value: this.workflowLink,
                 short: false,
             },
+            await this.failedStepsField(),
         ];
+        return fields.filter((f) => f !== null);
     }
     get textSuccess() {
         if (this.with.text_on_success !== '') {
@@ -70514,6 +70526,75 @@ class Client {
     get repositoryLink() {
         const { owner, repo } = github_context.repo;
         return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
+    }
+    get refField() {
+        const ref = github_context.ref;
+        const branchMatch = ref.match(/^refs\/heads\/(.+)$/);
+        if (branchMatch) {
+            return { title: 'branch', value: branchMatch[1], short: false };
+        }
+        const tagMatch = ref.match(/^refs\/tags\/(.+)$/);
+        if (tagMatch) {
+            return { title: 'tag', value: tagMatch[1], short: false };
+        }
+        return { title: 'ref', value: ref, short: false };
+    }
+    get compareField() {
+        const compare = github_context.payload.compare;
+        if (typeof compare !== 'string' || compare === '')
+            return null;
+        return { title: 'diff', value: `<${compare}|compare>`, short: false };
+    }
+    get pullRequestField() {
+        const pr = github_context.payload.pull_request;
+        if (!pr)
+            return null;
+        const number = pr.number;
+        const title = pr.title ?? '';
+        const url = pr.html_url ?? '';
+        if (!url)
+            return null;
+        return {
+            title: 'pull_request',
+            value: `<${url}|#${number}> ${title}`,
+            short: false,
+        };
+    }
+    async failedStepsField() {
+        if (this.with.status.toLowerCase() !== 'failure')
+            return null;
+        if (this.octokit === undefined)
+            return null;
+        const { owner, repo } = github_context.repo;
+        try {
+            const { data } = await this.octokit.rest.actions.listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: parseInt(this.runId, 10),
+            });
+            const failed = [];
+            for (const job of data.jobs) {
+                if (job.conclusion !== 'failure')
+                    continue;
+                const steps = job.steps ?? [];
+                for (const step of steps) {
+                    if (step.conclusion === 'failure') {
+                        failed.push(`${job.name} > ${step.name}`);
+                    }
+                }
+            }
+            if (failed.length === 0)
+                return null;
+            return {
+                title: 'failed_steps',
+                value: failed.map(s => `• ${s}`).join('\n'),
+                short: false,
+            };
+        }
+        catch (e) {
+            core.debug(`failedStepsField error: ${e instanceof Error ? e.message : String(e)}`);
+            return null;
+        }
     }
     async message(message) {
         if (this.octokit === undefined) {
@@ -70645,6 +70726,7 @@ async function run() {
         const text_on_success = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_success');
         const text_on_fail = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_fail');
         const text_on_cancel = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_cancel');
+        const notice_on = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('notice_on');
         const rawPayload = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('payload');
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`status: ${status}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`mention: ${mention}`);
@@ -70654,6 +70736,7 @@ async function run() {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_success: ${text_on_success}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_fail: ${text_on_fail}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_cancel: ${text_on_cancel}`);
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`notice_on: ${notice_on}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`rawPayload: ${rawPayload}`);
         const client = new _client_js__WEBPACK_IMPORTED_MODULE_1__/* .Client */ .K({
             status,
@@ -70664,7 +70747,12 @@ async function run() {
             text_on_cancel,
             title,
             only_mention_fail,
+            notice_on,
         }, process.env.GITHUB_TOKEN, process.env.SLACK_WEBHOOK_URL);
+        if (status !== 'custom' && !client.shouldNotice(status)) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Skipped: status "${status}" not in notice_on "${notice_on}"`);
+            return;
+        }
         switch (status) {
             case 'success':
                 await client.send(await client.success());

@@ -13,6 +13,7 @@ async function run(): Promise<void> {
     const text_on_success = core.getInput('text_on_success');
     const text_on_fail = core.getInput('text_on_fail');
     const text_on_cancel = core.getInput('text_on_cancel');
+    const notice_on = core.getInput('notice_on');
     const rawPayload = core.getInput('payload');
 
     core.debug(`status: ${status}`);
@@ -23,6 +24,7 @@ async function run(): Promise<void> {
     core.debug(`text_on_success: ${text_on_success}`);
     core.debug(`text_on_fail: ${text_on_fail}`);
     core.debug(`text_on_cancel: ${text_on_cancel}`);
+    core.debug(`notice_on: ${notice_on}`);
     core.debug(`rawPayload: ${rawPayload}`);
 
     const client = new Client(
@@ -35,10 +37,16 @@ async function run(): Promise<void> {
         text_on_cancel,
         title,
         only_mention_fail,
+        notice_on,
       },
       process.env.GITHUB_TOKEN,
       process.env.SLACK_WEBHOOK_URL,
     );
+
+    if (status !== 'custom' && !client.shouldNotice(status)) {
+      core.info(`Skipped: status "${status}" not in notice_on "${notice_on}"`);
+      return;
+    }
 
     switch (status) {
       case 'success':
