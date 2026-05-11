@@ -70464,7 +70464,6 @@ class Client {
                 value: this.commitLink,
                 short: false,
             },
-            this.compareField,
             {
                 title: 'author',
                 value: authorValue,
@@ -70529,21 +70528,17 @@ class Client {
     }
     get refField() {
         const ref = github_context.ref;
-        const branchMatch = ref.match(/^refs\/heads\/(.+)$/);
-        if (branchMatch) {
-            return { title: 'branch', value: branchMatch[1], short: false };
-        }
-        const tagMatch = ref.match(/^refs\/tags\/(.+)$/);
-        if (tagMatch) {
-            return { title: 'tag', value: tagMatch[1], short: false };
+        const { owner, repo } = github_context.repo;
+        const m = ref.match(/^refs\/(?:heads|tags)\/(.+)$/);
+        if (m) {
+            const name = m[1];
+            return {
+                title: 'ref',
+                value: `<https://github.com/${owner}/${repo}/tree/${name}|${name}>`,
+                short: false,
+            };
         }
         return { title: 'ref', value: ref, short: false };
-    }
-    get compareField() {
-        const compare = github_context.payload.compare;
-        if (typeof compare !== 'string' || compare === '')
-            return null;
-        return { title: 'diff', value: `<${compare}|compare>`, short: false };
     }
     get pullRequestField() {
         const pr = github_context.payload.pull_request;
@@ -70572,10 +70567,11 @@ class Client {
                 repo,
                 run_id: parseInt(this.runId, 10),
             });
+            // Don't filter by job.conclusion: when this action runs, the
+            // current job's conclusion is still null. Scan all steps and
+            // pick whichever ones report conclusion === 'failure'.
             const failed = [];
             for (const job of data.jobs) {
-                if (job.conclusion !== 'failure')
-                    continue;
                 const steps = job.steps ?? [];
                 for (const step of steps) {
                     if (step.conclusion === 'failure') {
