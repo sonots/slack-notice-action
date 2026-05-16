@@ -106,18 +106,27 @@ export class Client {
     const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
     const message = await this.message(commit.data.commit.message);
 
-    return [
+    const fields: Field[] = [
       {
         title: 'repo',
         value: this.repositoryLink,
         short: false,
       },
-      this.refField,
-      {
+    ];
+
+    const prField = this.pullRequestField;
+    if (prField) {
+      fields.push(prField);
+    } else {
+      fields.push(this.refField);
+      fields.push({
         title: 'commit',
         value: this.commitLink,
         short: false,
-      },
+      });
+    }
+
+    fields.push(
       {
         title: 'author',
         value: authorValue,
@@ -133,7 +142,22 @@ export class Client {
         value: this.workflowLink,
         short: false,
       },
-    ];
+    );
+
+    return fields;
+  }
+
+  private get pullRequestField(): Field | null {
+    const pr = github.context.payload.pull_request;
+    if (!pr) return null;
+    const url = (pr as { html_url?: string }).html_url;
+    const title = (pr as { title?: string }).title;
+    if (!url || !title) return null;
+    return {
+      title: 'pull request',
+      value: `<${url}|${title}>`,
+      short: false,
+    };
   }
 
   private get textSuccess() {

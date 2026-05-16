@@ -87,8 +87,9 @@ The default message includes the following fields:
 | Field           | Notes                                                                                    |
 | --------------- | ---------------------------------------------------------------------------------------- |
 | `repo`          | Repository link.                                                                         |
-| `ref`           | Raw ref string (e.g. `refs/heads/main`, `refs/tags/v1.0.0`) followed by a `branch` / `tag` link to `tree/<name>` on GitHub. Unusual refs (e.g. `refs/pull/.../merge`) appear as plain text with no link. |
-| `commit`        | Commit SHA linked to GitHub.                                                             |
+| `ref`           | Raw ref string (e.g. `refs/heads/main`, `refs/tags/v1.0.0`) followed by a `branch` / `tag` link to `tree/<name>` on GitHub. **Replaced by `pull request` on PR events.** |
+| `commit`        | Commit SHA linked to GitHub. **Hidden on PR events** (the PR link replaces it).          |
+| `pull request`  | PR title linked to the PR (only on `pull_request` / `pull_request_target` events; replaces `ref` and `commit`). |
 | `author`        | Commit author name and email.                                                            |
 | `message`       | Commit message. Merge-commit PR bodies are appended.                                     |
 | `workflow`      | Workflow name linked to the run.                                                         |

@@ -70440,34 +70440,53 @@ class Client {
         const { author } = commit.data.commit;
         const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
         const message = await this.message(commit.data.commit.message);
-        return [
+        const fields = [
             {
                 title: 'repo',
                 value: this.repositoryLink,
                 short: false,
             },
-            this.refField,
-            {
+        ];
+        const prField = this.pullRequestField;
+        if (prField) {
+            fields.push(prField);
+        }
+        else {
+            fields.push(this.refField);
+            fields.push({
                 title: 'commit',
                 value: this.commitLink,
                 short: false,
-            },
-            {
-                title: 'author',
-                value: authorValue,
-                short: false,
-            },
-            {
-                title: 'message',
-                value: message,
-                short: false,
-            },
-            {
-                title: 'workflow',
-                value: this.workflowLink,
-                short: false,
-            },
-        ];
+            });
+        }
+        fields.push({
+            title: 'author',
+            value: authorValue,
+            short: false,
+        }, {
+            title: 'message',
+            value: message,
+            short: false,
+        }, {
+            title: 'workflow',
+            value: this.workflowLink,
+            short: false,
+        });
+        return fields;
+    }
+    get pullRequestField() {
+        const pr = github_context.payload.pull_request;
+        if (!pr)
+            return null;
+        const url = pr.html_url;
+        const title = pr.title;
+        if (!url || !title)
+            return null;
+        return {
+            title: 'pull request',
+            value: `<${url}|${title}>`,
+            short: false,
+        };
     }
     get textSuccess() {
         if (this.with.text_on_success !== '') {
