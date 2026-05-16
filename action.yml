@@ -33,11 +33,6 @@ inputs:
   text_on_cancel:
     description: Override text on cancellation only. Wins over `text`.
     default: ''
-  notice_on:
-    description: |
-      Comma-separated list of statuses to notify on. e.g. `failure`,
-      `failure,cancelled`. Default is empty, which notifies on all statuses.
-    default: ''
 runs:
   using: node24
   main: dist/index.js
