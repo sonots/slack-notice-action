@@ -24,6 +24,21 @@ inputs:
   text:
     description: You can overwrite text.
     default: ''
+  text_on_success:
+    description: Override text on success only. Wins over `text`.
+    default: ''
+  text_on_fail:
+    description: Override text on failure only. Wins over `text`.
+    default: ''
+  text_on_cancel:
+    description: Override text on cancellation only. Wins over `text`.
+    default: ''
+  show_message:
+    description: |
+      Show the `message` field (commit message on push events, PR body
+      on PR events). Set to `'false'` to hide it when the message tends
+      to be long. Default is to show.
+    default: ''
 runs:
   using: node24
   main: dist/index.js

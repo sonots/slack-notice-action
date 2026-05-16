@@ -16,6 +16,8 @@ and arbitrary custom payloads.
 - [Input Parameters](#input-parameters)
 - [Environment Variables](#environment-variables)
 - [Custom Text and Mentions](#custom-text-and-mentions)
+- [Message Anatomy](#message-anatomy)
+- [Message Fields](#message-fields)
 - [Custom Payload](#custom-payload)
 - [Screenshots](#screenshots)
 - [Slack App Setup](#slack-app-setup)
@@ -46,6 +48,7 @@ and arbitrary custom payloads.
 | `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
 | `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
 | `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
+| `show_message`      | `'true'` / `'false'`                                                            | `'true'`      | Hide the `message` field. Useful when commit messages or PR bodies are long.                            |
 | `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
@@ -78,6 +81,117 @@ fires when `status` is `failure`.
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   if: always()
 ```
+
+## Message Anatomy
+
+A notification is a Slack message with one colored `attachment`. The
+top-level **text line** (`mention` + `text_on_*` / `text`) sits
+**outside the attachment, above it** — it is just a regular Slack
+message text. The attachment is the boxed, color-bordered block
+underneath; it has its own `title`, `fields`, and `color`.
+
+```
+@channel :tada: All checks passed!        ← message text (mention + text_on_*)
+╭─────────────────────────────
+│ My Workflow                              ← attachment title
+│
+│ repo
+│ owner/repo
+│
+│ ref
+│ refs/heads/main  branch
+│
+│ commit
+│ abc1234
+│
+│ author
+│ name<email>
+│
+│ message
+│ Commit message...
+│
+│ workflow
+│ My Workflow
+╰── (green sidebar) ─────────
+```
+
+The YAML that produced the layout above:
+
+```yaml
+with:
+  status: success
+  mention: 'channel'                                   # → <!channel> in the text line
+  text_on_success: ':tada: All checks passed!'         # → body of the text line
+  title: 'My Workflow'                                 # → attachment title
+```
+
+| Input                              | Where it renders                                                                 |
+| ---------------------------------- | -------------------------------------------------------------------------------- |
+| `mention` / `only_mention_fail`    | **Text line** (above the attachment), as `<!here>` / `<!channel>` / `<@user_id>`. |
+| `text` / `text_on_<status>`        | **Text line**, after the mentions. `text_on_<status>` wins over `text`, which wins over a built-in default. |
+| `title`                            | **Attachment header** (the bold line inside the colored block). Defaults to the GitHub workflow name. |
+| `fields`                           | **Attachment body** — see [Message Fields](#message-fields). |
+| (status)                           | **Sidebar color**: `good` (success) / `danger` (failure) / `warning` (cancelled). |
+
+### PR event layout
+
+On `pull_request` and `pull_request_target` events, the four
+commit-derived fields (`ref`, `commit`, commit-`author`,
+commit-`message`) are replaced with PR-centric equivalents so the
+notification points at the PR instead of the synthetic merge commit:
+
+```
+@channel :tada: All checks passed!
+╭─────────────────────────────
+│ My Workflow
+│
+│ repo
+│ owner/repo
+│
+│ pull_request
+│ <PR title>             ← link to the PR
+│
+│ author
+│ <pr-creator-login>     ← link to the user's profile
+│
+│ message
+│ <PR description body>
+│
+│ workflow
+│ My Workflow
+╰── (green sidebar) ─────────
+```
+
+Set `show_message: 'false'` to hide the `message` field on either
+layout when the body tends to be long.
+
+## Message Fields
+
+The default message has two layouts depending on the event:
+
+**Push / tag / other non-PR events**
+
+| Field      | Notes                                                                                  |
+| ---------- | -------------------------------------------------------------------------------------- |
+| `repo`     | Repository link.                                                                       |
+| `ref`      | Raw ref string (e.g. `refs/heads/main`, `refs/tags/v1.0.0`) followed by a `branch` / `tag` link to `tree/<name>` on GitHub. |
+| `commit`   | Commit SHA linked to GitHub.                                                           |
+| `author`   | Commit author name and email.                                                          |
+| `message`  | Commit message. Merge-commit PR bodies are appended.                                   |
+| `workflow` | Workflow name linked to the run.                                                       |
+
+**`pull_request` / `pull_request_target` events**
+
+`ref`, `commit`, the commit author, and the commit message are replaced
+with PR-centric equivalents:
+
+| Field          | Notes                                              |
+| -------------- | -------------------------------------------------- |
+| `repo`         | Repository link.                                   |
+| `pull_request` | PR title linked to the PR.                         |
+| `author`       | PR creator's GitHub login, linked to their profile.|
+| `message`      | PR description (`pull_request.body`).              |
+| `workflow`     | Workflow name linked to the run.                   |
 
 ## Custom Payload
 

@@ -12,6 +12,7 @@ jobs:
         uses: sonots/slack-notice-action@pre
         with:
           status: Success
+          text_on_success: ':white_check_mark: text_on_success — visible on success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
@@ -20,6 +21,7 @@ jobs:
         with:
           status: Failure
           only_mention_fail: here
+          text_on_fail: ':rotating_light: text_on_fail — visible on failure'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
@@ -27,6 +29,7 @@ jobs:
         uses: sonots/slack-notice-action@pre
         with:
           status: Cancelled
+          text_on_cancel: ':warning: text_on_cancel — visible on cancellation'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}

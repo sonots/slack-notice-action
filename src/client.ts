@@ -12,6 +12,13 @@ export interface With {
   text_on_cancel: string;
   title: string;
   only_mention_fail: string;
+  show_message: string;
+}
+
+interface Field {
+  title: string;
+  value: string;
+  short: boolean;
 }
 
 const groupMention = ['here', 'channel'];
@@ -85,7 +92,79 @@ export class Client {
     };
   }
 
-  private async fields() {
+  private async fields(): Promise<Field[]> {
+    const fields: Field[] = [
+      {
+        title: 'repo',
+        value: this.repositoryLink,
+        short: false,
+      },
+    ];
+
+    const prFields = this.pullRequestFields;
+    if (prFields) {
+      fields.push(...prFields);
+    } else {
+      fields.push(...(await this.commitFields()));
+    }
+
+    fields.push({
+      title: 'workflow',
+      value: this.workflowLink,
+      short: false,
+    });
+
+    return fields;
+  }
+
+  private get showMessage(): boolean {
+    return this.with.show_message.toLowerCase() !== 'false';
+  }
+
+  private get pullRequestFields(): Field[] | null {
+    const pr = github.context.payload.pull_request as
+      | {
+          html_url?: string;
+          title?: string;
+          body?: string | null;
+          user?: { login?: string; html_url?: string };
+        }
+      | undefined;
+    if (!pr) return null;
+    const url = pr.html_url;
+    const title = pr.title;
+    if (!url || !title) return null;
+
+    const login = pr.user?.login;
+    const userUrl = pr.user?.html_url;
+    let authorValue = 'unknown';
+    if (login) {
+      authorValue = userUrl ? `<${userUrl}|${login}>` : login;
+    }
+
+    const fields: Field[] = [
+      {
+        title: 'pull_request',
+        value: `<${url}|${title}>`,
+        short: false,
+      },
+      {
+        title: 'author',
+        value: authorValue,
+        short: false,
+      },
+    ];
+    if (this.showMessage) {
+      fields.push({
+        title: 'message',
+        value: pr.body ?? '',
+        short: false,
+      });
+    }
+    return fields;
+  }
+
+  private async commitFields(): Promise<Field[]> {
     if (this.octokit === undefined) {
       throw Error('Specify secrets.GITHUB_TOKEN');
     }
@@ -98,19 +177,9 @@ export class Client {
     });
     const { author } = commit.data.commit;
     const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
-    const message = await this.message(commit.data.commit.message);
 
-    return [
-      {
-        title: 'repo',
-        value: this.repositoryLink,
-        short: false,
-      },
-      {
-        title: 'ref',
-        value: github.context.ref,
-        short: false,
-      },
+    const fields: Field[] = [
+      this.refField,
       {
         title: 'commit',
         value: this.commitLink,
@@ -121,17 +190,16 @@ export class Client {
         value: authorValue,
         short: false,
       },
-      {
+    ];
+    if (this.showMessage) {
+      const message = await this.message(commit.data.commit.message);
+      fields.push({
         title: 'message',
         value: message,
         short: false,
-      },
-      {
-        title: 'workflow',
-        value: this.workflowLink,
-        short: false,
-      },
-    ];
+      });
+    }
+    return fields;
   }
 
   private get textSuccess() {
@@ -182,6 +250,24 @@ export class Client {
     const { owner, repo } = github.context.repo;
 
     return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
+  }
+
+  private get refField(): Field {
+    const ref = github.context.ref;
+    const { owner, repo } = github.context.repo;
+    const branchMatch = ref.match(/^refs\/heads\/(.+)$/);
+    if (branchMatch) {
+      const name = branchMatch[1];
+      const link = `<https://github.com/${owner}/${repo}/tree/${name}|branch>`;
+      return { title: 'ref', value: `${ref} ${link}`, short: false };
+    }
+    const tagMatch = ref.match(/^refs\/tags\/(.+)$/);
+    if (tagMatch) {
+      const name = tagMatch[1];
+      const link = `<https://github.com/${owner}/${repo}/tree/${name}|tag>`;
+      return { title: 'ref', value: `${ref} ${link}`, short: false };
+    }
+    return { title: 'ref', value: ref, short: false };
   }
 
   private async message(message: string) {

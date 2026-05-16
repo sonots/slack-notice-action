@@ -70427,6 +70427,66 @@ class Client {
         };
     }
     async fields() {
+        const fields = [
+            {
+                title: 'repo',
+                value: this.repositoryLink,
+                short: false,
+            },
+        ];
+        const prFields = this.pullRequestFields;
+        if (prFields) {
+            fields.push(...prFields);
+        }
+        else {
+            fields.push(...(await this.commitFields()));
+        }
+        fields.push({
+            title: 'workflow',
+            value: this.workflowLink,
+            short: false,
+        });
+        return fields;
+    }
+    get showMessage() {
+        return this.with.show_message.toLowerCase() !== 'false';
+    }
+    get pullRequestFields() {
+        const pr = github_context.payload.pull_request;
+        if (!pr)
+            return null;
+        const url = pr.html_url;
+        const title = pr.title;
+        if (!url || !title)
+            return null;
+        const login = pr.user?.login;
+        const userUrl = pr.user?.html_url;
+        let authorValue = 'unknown';
+        if (login) {
+            authorValue = userUrl ? `<${userUrl}|${login}>` : login;
+        }
+        const fields = [
+            {
+                title: 'pull_request',
+                value: `<${url}|${title}>`,
+                short: false,
+            },
+            {
+                title: 'author',
+                value: authorValue,
+                short: false,
+            },
+        ];
+        if (this.showMessage) {
+            fields.push({
+                title: 'message',
+                value: pr.body ?? '',
+                short: false,
+            });
+        }
+        return fields;
+    }
+    async commitFields() {
         if (this.octokit === undefined) {
             throw Error('Specify secrets.GITHUB_TOKEN');
         }
@@ -70439,18 +70499,8 @@ class Client {
         });
         const { author } = commit.data.commit;
         const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
-        const message = await this.message(commit.data.commit.message);
-        return [
-            {
-                title: 'repo',
-                value: this.repositoryLink,
-                short: false,
-            },
-            {
-                title: 'ref',
-                value: github_context.ref,
-                short: false,
-            },
+        const fields = [
+            this.refField,
             {
                 title: 'commit',
                 value: this.commitLink,
@@ -70461,17 +70511,16 @@ class Client {
                 value: authorValue,
                 short: false,
             },
-            {
+        ];
+        if (this.showMessage) {
+            const message = await this.message(commit.data.commit.message);
+            fields.push({
                 title: 'message',
                 value: message,
                 short: false,
-            },
-            {
-                title: 'workflow',
-                value: this.workflowLink,
-                short: false,
-            },
-        ];
+            });
+        }
+        return fields;
     }
     get textSuccess() {
         if (this.with.text_on_success !== '') {
@@ -70514,6 +70563,23 @@ class Client {
     get repositoryLink() {
         const { owner, repo } = github_context.repo;
         return `<https://github.com/${owner}/${repo}|${owner}/${repo}>`;
+    }
+    get refField() {
+        const ref = github_context.ref;
+        const { owner, repo } = github_context.repo;
+        const branchMatch = ref.match(/^refs\/heads\/(.+)$/);
+        if (branchMatch) {
+            const name = branchMatch[1];
+            const link = `<https://github.com/${owner}/${repo}/tree/${name}|branch>`;
+            return { title: 'ref', value: `${ref} ${link}`, short: false };
+        }
+        const tagMatch = ref.match(/^refs\/tags\/(.+)$/);
+        if (tagMatch) {
+            const name = tagMatch[1];
+            const link = `<https://github.com/${owner}/${repo}/tree/${name}|tag>`;
+            return { title: 'ref', value: `${ref} ${link}`, short: false };
+        }
+        return { title: 'ref', value: ref, short: false };
     }
     async message(message) {
         if (this.octokit === undefined) {
@@ -70645,6 +70711,7 @@ async function run() {
         const text_on_success = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_success');
         const text_on_fail = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_fail');
         const text_on_cancel = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('text_on_cancel');
+        const show_message = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('show_message');
         const rawPayload = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('payload');
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`status: ${status}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`mention: ${mention}`);
@@ -70654,6 +70721,7 @@ async function run() {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_success: ${text_on_success}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_fail: ${text_on_fail}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`text_on_cancel: ${text_on_cancel}`);
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`show_message: ${show_message}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`rawPayload: ${rawPayload}`);
         const client = new _client_js__WEBPACK_IMPORTED_MODULE_1__/* .Client */ .K({
             status,
@@ -70664,6 +70732,7 @@ async function run() {
             text_on_cancel,
             title,
             only_mention_fail,
+            show_message,
         }, process.env.GITHUB_TOKEN, process.env.SLACK_WEBHOOK_URL);
         switch (status) {
             case 'success':
