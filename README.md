@@ -84,13 +84,17 @@ fires when `status` is `failure`.
 
 ## Message Anatomy
 
-Each notification is rendered as a Slack `attachment`: a colored
-sidebar block with a header (`title`), a list of `fields`, and a
-top-level text line that sits *above* the attachment.
+A notification is a Slack message with one colored `attachment`. The
+top-level **text line** (`mention` + `text_on_*` / `text`) sits
+**outside the attachment, above it** — it is just a regular Slack
+message text. The attachment is the boxed, color-bordered block
+underneath; it has its own `title`, `fields`, and `color`.
 
 ```
-[mentions] [top-level text]
-╭──[ title ]──────────────────────────
+@channel :tada: All checks passed!        ← message text (mention + text_on_*)
+╭─────────────────────────────
+│ My Workflow                              ← attachment title
+│
 │ repo
 │ owner/repo
 │
@@ -108,16 +112,26 @@ top-level text line that sits *above* the attachment.
 │
 │ workflow
 │ My Workflow
-╰──[ color ]──────────────────────────
+╰── (green sidebar) ─────────
 ```
 
-| Element        | Source                                                                       |
-| -------------- | ---------------------------------------------------------------------------- |
-| top-level text | `text_on_<status>` if set, else `text`, else a built-in default per status.  |
-| mentions       | `mention` always-on; `only_mention_fail` adds mentions only on `status: failure`. Rendered as `<!here>` / `<!channel>` / `<@user_id>` *inside* the top-level text line. |
-| `title`        | `title` input if set, else the GitHub workflow name.                         |
-| `fields`       | See [Message Fields](#message-fields) — layout differs between push events and PR events. |
-| `color`        | `good` (success) / `danger` (failure) / `warning` (cancelled).               |
+The YAML that produced the layout above:
+
+```yaml
+with:
+  status: success
+  mention: 'channel'                                   # → <!channel> in the text line
+  text_on_success: ':tada: All checks passed!'         # → body of the text line
+  title: 'My Workflow'                                 # → attachment title
+```
+
+| Input                              | Where it renders                                                                 |
+| ---------------------------------- | -------------------------------------------------------------------------------- |
+| `mention` / `only_mention_fail`    | **Text line** (above the attachment), as `<!here>` / `<!channel>` / `<@user_id>`. |
+| `text` / `text_on_<status>`        | **Text line**, after the mentions. `text_on_<status>` wins over `text`, which wins over a built-in default. |
+| `title`                            | **Attachment header** (the bold line inside the colored block). Defaults to the GitHub workflow name. |
+| `fields`                           | **Attachment body** — see [Message Fields](#message-fields). |
+| (status)                           | **Sidebar color**: `good` (success) / `danger` (failure) / `warning` (cancelled). |
 
 ### PR event layout
 
@@ -127,8 +141,10 @@ commit-`message`) are replaced with PR-centric equivalents so the
 notification points at the PR instead of the synthetic merge commit:
 
 ```
-[mentions] [top-level text]
-╭──[ title ]──────────────────────────
+@channel :tada: All checks passed!
+╭─────────────────────────────
+│ My Workflow
+│
 │ repo
 │ owner/repo
 │
@@ -143,7 +159,7 @@ notification points at the PR instead of the synthetic merge commit:
 │
 │ workflow
 │ My Workflow
-╰──[ color ]──────────────────────────
+╰── (green sidebar) ─────────
 ```
 
 Set `show_message: 'false'` to hide the `message` field on either
