@@ -82,17 +82,31 @@ fires when `status` is `failure`.
 
 ## Message Fields
 
-The default message includes the following fields:
+The default message has two layouts depending on the event:
 
-| Field           | Notes                                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------- |
-| `repo`          | Repository link.                                                                         |
-| `ref`           | Raw ref string (e.g. `refs/heads/main`, `refs/tags/v1.0.0`) followed by a `branch` / `tag` link to `tree/<name>` on GitHub. **Replaced by `pull request` on PR events.** |
-| `commit`        | Commit SHA linked to GitHub. **Hidden on PR events** (the PR link replaces it).          |
-| `pull request`  | PR title linked to the PR (only on `pull_request` / `pull_request_target` events; replaces `ref` and `commit`). |
-| `author`        | Commit author name and email.                                                            |
-| `message`       | Commit message. Merge-commit PR bodies are appended.                                     |
-| `workflow`      | Workflow name linked to the run.                                                         |
+**Push / tag / other non-PR events**
+
+| Field      | Notes                                                                                  |
+| ---------- | -------------------------------------------------------------------------------------- |
+| `repo`     | Repository link.                                                                       |
+| `ref`      | Raw ref string (e.g. `refs/heads/main`, `refs/tags/v1.0.0`) followed by a `branch` / `tag` link to `tree/<name>` on GitHub. |
+| `commit`   | Commit SHA linked to GitHub.                                                           |
+| `author`   | Commit author name and email.                                                          |
+| `message`  | Commit message. Merge-commit PR bodies are appended.                                   |
+| `workflow` | Workflow name linked to the run.                                                       |
+
+**`pull_request` / `pull_request_target` events**
+
+`ref`, `commit`, the commit author, and the commit message are replaced
+with PR-centric equivalents:
+
+| Field          | Notes                                              |
+| -------------- | -------------------------------------------------- |
+| `repo`         | Repository link.                                   |
+| `pull_request` | PR title linked to the PR.                         |
+| `author`       | PR creator's GitHub login, linked to their profile.|
+| `message`      | PR description (`pull_request.body`).              |
+| `workflow`     | Workflow name linked to the run.                   |
 
 ## Custom Payload
 
