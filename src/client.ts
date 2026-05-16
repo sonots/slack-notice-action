@@ -92,6 +92,71 @@ export class Client {
   }
 
   private async fields(): Promise<Field[]> {
+    const fields: Field[] = [
+      {
+        title: 'repo',
+        value: this.repositoryLink,
+        short: false,
+      },
+    ];
+
+    const prFields = this.pullRequestFields;
+    if (prFields) {
+      fields.push(...prFields);
+    } else {
+      fields.push(...(await this.commitFields()));
+    }
+
+    fields.push({
+      title: 'workflow',
+      value: this.workflowLink,
+      short: false,
+    });
+
+    return fields;
+  }
+
+  private get pullRequestFields(): Field[] | null {
+    const pr = github.context.payload.pull_request as
+      | {
+          html_url?: string;
+          title?: string;
+          body?: string | null;
+          user?: { login?: string; html_url?: string };
+        }
+      | undefined;
+    if (!pr) return null;
+    const url = pr.html_url;
+    const title = pr.title;
+    if (!url || !title) return null;
+
+    const login = pr.user?.login;
+    const userUrl = pr.user?.html_url;
+    let authorValue = 'unknown';
+    if (login) {
+      authorValue = userUrl ? `<${userUrl}|${login}>` : login;
+    }
+
+    return [
+      {
+        title: 'pull_request',
+        value: `<${url}|${title}>`,
+        short: false,
+      },
+      {
+        title: 'author',
+        value: authorValue,
+        short: false,
+      },
+      {
+        title: 'message',
+        value: pr.body ?? '',
+        short: false,
+      },
+    ];
+  }
+
+  private async commitFields(): Promise<Field[]> {
     if (this.octokit === undefined) {
       throw Error('Specify secrets.GITHUB_TOKEN');
     }
@@ -106,27 +171,13 @@ export class Client {
     const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
     const message = await this.message(commit.data.commit.message);
 
-    const fields: Field[] = [
+    return [
+      this.refField,
       {
-        title: 'repo',
-        value: this.repositoryLink,
-        short: false,
-      },
-    ];
-
-    const prField = this.pullRequestField;
-    if (prField) {
-      fields.push(prField);
-    } else {
-      fields.push(this.refField);
-      fields.push({
         title: 'commit',
         value: this.commitLink,
         short: false,
-      });
-    }
-
-    fields.push(
+      },
       {
         title: 'author',
         value: authorValue,
@@ -137,27 +188,7 @@ export class Client {
         value: message,
         short: false,
       },
-      {
-        title: 'workflow',
-        value: this.workflowLink,
-        short: false,
-      },
-    );
-
-    return fields;
-  }
-
-  private get pullRequestField(): Field | null {
-    const pr = github.context.payload.pull_request;
-    if (!pr) return null;
-    const url = (pr as { html_url?: string }).html_url;
-    const title = (pr as { title?: string }).title;
-    if (!url || !title) return null;
-    return {
-      title: 'pull request',
-      value: `<${url}|${title}>`,
-      short: false,
-    };
+    ];
   }
 
   private get textSuccess() {
