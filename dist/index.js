@@ -70529,14 +70529,17 @@ class Client {
     get refField() {
         const ref = github_context.ref;
         const { owner, repo } = github_context.repo;
-        const m = ref.match(/^refs\/(?:heads|tags)\/(.+)$/);
-        if (m) {
-            const name = m[1];
-            return {
-                title: 'ref',
-                value: `<https://github.com/${owner}/${repo}/tree/${name}|${name}>`,
-                short: false,
-            };
+        const branchMatch = ref.match(/^refs\/heads\/(.+)$/);
+        if (branchMatch) {
+            const name = branchMatch[1];
+            const link = `<https://github.com/${owner}/${repo}/tree/${name}|branch>`;
+            return { title: 'ref', value: `${ref} ${link}`, short: false };
+        }
+        const tagMatch = ref.match(/^refs\/tags\/(.+)$/);
+        if (tagMatch) {
+            const name = tagMatch[1];
+            const link = `<https://github.com/${owner}/${repo}/tree/${name}|tag>`;
+            return { title: 'ref', value: `${ref} ${link}`, short: false };
         }
         return { title: 'ref', value: ref, short: false };
     }
@@ -70582,7 +70585,7 @@ class Client {
             if (failed.length === 0)
                 return null;
             return {
-                title: 'failed_steps',
+                title: 'workflow failed steps',
                 value: failed.map(s => `• ${s}`).join('\n'),
                 short: false,
             };

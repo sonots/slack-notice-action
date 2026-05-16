@@ -109,13 +109,13 @@ The default message includes the following fields:
 | Field           | Notes                                                                                    |
 | --------------- | ---------------------------------------------------------------------------------------- |
 | `repo`          | Repository link.                                                                         |
-| `ref`           | Short branch/tag name linked to `tree/<name>` on GitHub. Raw ref for unusual refs (e.g. `refs/pull/.../merge`). |
+| `ref`           | Raw ref string (e.g. `refs/heads/main`, `refs/tags/v1.0.0`) followed by a `branch` / `tag` link to `tree/<name>` on GitHub. Unusual refs (e.g. `refs/pull/.../merge`) appear as plain text with no link. |
 | `commit`        | Commit SHA linked to GitHub.                                                             |
 | `author`        | Commit author name and email.                                                            |
 | `message`       | Commit message. Merge-commit PR bodies are appended.                                     |
 | `pull_request`  | PR number, title, and link (`pull_request` / `pull_request_target` events only).         |
 | `workflow`      | Workflow name linked to the run.                                                         |
-| `failed_steps`  | Each failed step as `job > step` (only on `status: failure` when GitHub API is reachable).|
+| `workflow failed steps` | Each failed step as `job > step` (only on `status: failure` when GitHub API is reachable).|
 
 ## Custom Payload
 

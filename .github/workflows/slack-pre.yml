@@ -24,6 +24,7 @@ jobs:
         uses: sonots/slack-notice-action@pre
         with:
           status: Success
+          text_on_success: ':white_check_mark: text_on_success — visible on success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
@@ -32,6 +33,7 @@ jobs:
         with:
           status: Failure
           only_mention_fail: here
+          text_on_fail: ':rotating_light: text_on_fail — visible on failure'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
@@ -39,6 +41,7 @@ jobs:
         uses: sonots/slack-notice-action@pre
         with:
           status: Cancelled
+          text_on_cancel: ':warning: text_on_cancel — visible on cancellation'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
@@ -81,7 +84,7 @@ jobs:
         uses: sonots/slack-notice-action@pre
         with:
           status: failure
-          text_on_fail: 'failed_steps test: the failure-source job''s Intentional Failure step should appear in failed_steps'
+          text_on_fail: 'failed_steps test: the failure-source job''s Intentional Failure step should appear in workflow failed steps'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
@@ -94,12 +97,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
-      - name: Notice On Allow Check (should post)
+      - name: Notice On Failure Check (should post)
         uses: sonots/slack-notice-action@pre
         with:
-          status: success
-          notice_on: success,failure
-          text_on_success: 'notice_on=success,failure → this success message should be visible'
+          status: failure
+          notice_on: failure
+          text_on_fail: 'notice_on=failure on failure → this failure message should be visible'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
