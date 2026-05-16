@@ -12,6 +12,7 @@ export interface With {
   text_on_cancel: string;
   title: string;
   only_mention_fail: string;
+  show_message: string;
 }
 
 interface Field {
@@ -116,6 +117,10 @@ export class Client {
     return fields;
   }
 
+  private get showMessage(): boolean {
+    return this.with.show_message.toLowerCase() !== 'false';
+  }
+
   private get pullRequestFields(): Field[] | null {
     const pr = github.context.payload.pull_request as
       | {
@@ -137,7 +142,7 @@ export class Client {
       authorValue = userUrl ? `<${userUrl}|${login}>` : login;
     }
 
-    return [
+    const fields: Field[] = [
       {
         title: 'pull_request',
         value: `<${url}|${title}>`,
@@ -148,12 +153,15 @@ export class Client {
         value: authorValue,
         short: false,
       },
-      {
+    ];
+    if (this.showMessage) {
+      fields.push({
         title: 'message',
         value: pr.body ?? '',
         short: false,
-      },
-    ];
+      });
+    }
+    return fields;
   }
 
   private async commitFields(): Promise<Field[]> {
@@ -169,9 +177,8 @@ export class Client {
     });
     const { author } = commit.data.commit;
     const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
-    const message = await this.message(commit.data.commit.message);
 
-    return [
+    const fields: Field[] = [
       this.refField,
       {
         title: 'commit',
@@ -183,12 +190,16 @@ export class Client {
         value: authorValue,
         short: false,
       },
-      {
+    ];
+    if (this.showMessage) {
+      const message = await this.message(commit.data.commit.message);
+      fields.push({
         title: 'message',
         value: message,
         short: false,
-      },
-    ];
+      });
+    }
+    return fields;
   }
 
   private get textSuccess() {

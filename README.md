@@ -16,6 +16,7 @@ and arbitrary custom payloads.
 - [Input Parameters](#input-parameters)
 - [Environment Variables](#environment-variables)
 - [Custom Text and Mentions](#custom-text-and-mentions)
+- [Message Anatomy](#message-anatomy)
 - [Message Fields](#message-fields)
 - [Custom Payload](#custom-payload)
 - [Screenshots](#screenshots)
@@ -47,6 +48,7 @@ and arbitrary custom payloads.
 | `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
 | `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
 | `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
+| `show_message`      | `'true'` / `'false'`                                                            | `'true'`      | Hide the `message` field. Useful when commit messages or PR bodies are long.                            |
 | `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
@@ -79,6 +81,73 @@ fires when `status` is `failure`.
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   if: always()
 ```
+
+## Message Anatomy
+
+Each notification is rendered as a Slack `attachment`: a colored
+sidebar block with a header (`title`), a list of `fields`, and a
+top-level text line that sits *above* the attachment.
+
+```
+[mentions] [top-level text]
+╭──[ title ]──────────────────────────
+│ repo
+│ owner/repo
+│
+│ ref
+│ refs/heads/main  branch
+│
+│ commit
+│ abc1234
+│
+│ author
+│ name<email>
+│
+│ message
+│ Commit message...
+│
+│ workflow
+│ My Workflow
+╰──[ color ]──────────────────────────
+```
+
+| Element        | Source                                                                       |
+| -------------- | ---------------------------------------------------------------------------- |
+| top-level text | `text_on_<status>` if set, else `text`, else a built-in default per status.  |
+| mentions       | `mention` always-on; `only_mention_fail` adds mentions only on `status: failure`. Rendered as `<!here>` / `<!channel>` / `<@user_id>` *inside* the top-level text line. |
+| `title`        | `title` input if set, else the GitHub workflow name.                         |
+| `fields`       | See [Message Fields](#message-fields) — layout differs between push events and PR events. |
+| `color`        | `good` (success) / `danger` (failure) / `warning` (cancelled).               |
+
+### PR event layout
+
+On `pull_request` and `pull_request_target` events, the four
+commit-derived fields (`ref`, `commit`, commit-`author`,
+commit-`message`) are replaced with PR-centric equivalents so the
+notification points at the PR instead of the synthetic merge commit:
+
+```
+[mentions] [top-level text]
+╭──[ title ]──────────────────────────
+│ repo
+│ owner/repo
+│
+│ pull_request
+│ <PR title>             ← link to the PR
+│
+│ author
+│ <pr-creator-login>     ← link to the user's profile
+│
+│ message
+│ <PR description body>
+│
+│ workflow
+│ My Workflow
+╰──[ color ]──────────────────────────
+```
+
+Set `show_message: 'false'` to hide the `message` field on either
+layout when the body tends to be long.
 
 ## Message Fields
 
