@@ -16,7 +16,6 @@ and arbitrary custom payloads.
 - [Input Parameters](#input-parameters)
 - [Environment Variables](#environment-variables)
 - [Custom Text and Mentions](#custom-text-and-mentions)
-- [Filter notifications by status](#filter-notifications-by-status)
 - [Message Fields](#message-fields)
 - [Custom Payload](#custom-payload)
 - [Screenshots](#screenshots)
@@ -48,7 +47,6 @@ and arbitrary custom payloads.
 | `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
 | `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
 | `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
-| `notice_on`         | comma-separated statuses (e.g. `failure`, `failure,cancelled`)                  | `''`          | If set, only notify when `status` matches. Empty means notify on every status (default).                |
 | `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
@@ -82,26 +80,6 @@ fires when `status` is `failure`.
   if: always()
 ```
 
-## Filter notifications by status
-
-Use `notice_on` to skip statuses you do not care about. The most common
-setup is "only alert me on failure":
-
-```yaml
-- uses: sonots/slack-notice-action@v4
-  with:
-    status: ${{ job.status }}
-    notice_on: 'failure'
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  if: always()
-```
-
-Pass a comma-separated list to allow multiple statuses, e.g.
-`notice_on: 'failure,cancelled'`. When `notice_on` is empty (the default),
-every status is delivered. `status: custom` always sends regardless.
-
 ## Message Fields
 
 The default message includes the following fields:
@@ -113,9 +91,7 @@ The default message includes the following fields:
 | `commit`        | Commit SHA linked to GitHub.                                                             |
 | `author`        | Commit author name and email.                                                            |
 | `message`       | Commit message. Merge-commit PR bodies are appended.                                     |
-| `pull_request`  | PR number, title, and link (`pull_request` / `pull_request_target` events only).         |
 | `workflow`      | Workflow name linked to the run.                                                         |
-| `workflow failed steps` | Each failed step as `job > step` (only on `status: failure` when GitHub API is reachable).|
 
 ## Custom Payload
 

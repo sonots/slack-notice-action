@@ -12,7 +12,6 @@ export interface With {
   text_on_cancel: string;
   title: string;
   only_mention_fail: string;
-  notice_on: string;
 }
 
 interface Field {
@@ -44,17 +43,6 @@ export class Client {
       throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
     }
     this.webhook = new IncomingWebhook(webhookUrl);
-  }
-
-  shouldNotice(status: string): boolean {
-    const raw = this.with.notice_on;
-    if (raw === '') return true;
-    const allowed = raw
-      .split(',')
-      .map(s => s.trim().toLowerCase())
-      .filter(s => s !== '');
-    if (allowed.length === 0) return true;
-    return allowed.includes(status.toLowerCase());
   }
 
   async success() {
@@ -118,7 +106,7 @@ export class Client {
     const authorValue = author ? `${author.name}<${author.email}>` : 'unknown';
     const message = await this.message(commit.data.commit.message);
 
-    const fields: Array<Field | null> = [
+    return [
       {
         title: 'repo',
         value: this.repositoryLink,
@@ -140,16 +128,12 @@ export class Client {
         value: message,
         short: false,
       },
-      this.pullRequestField,
       {
         title: 'workflow',
         value: this.workflowLink,
         short: false,
       },
-      await this.failedStepsField(),
     ];
-
-    return fields.filter((f): f is Field => f !== null);
   }
 
   private get textSuccess() {
@@ -218,56 +202,6 @@ export class Client {
       return { title: 'ref', value: `${ref} ${link}`, short: false };
     }
     return { title: 'ref', value: ref, short: false };
-  }
-
-  private get pullRequestField(): Field | null {
-    const pr = github.context.payload.pull_request;
-    if (!pr) return null;
-    const number = pr.number;
-    const title = (pr as { title?: string }).title ?? '';
-    const url = (pr as { html_url?: string }).html_url ?? '';
-    if (!url) return null;
-    return {
-      title: 'pull_request',
-      value: `<${url}|#${number}> ${title}`,
-      short: false,
-    };
-  }
-
-  private async failedStepsField(): Promise<Field | null> {
-    if (this.with.status.toLowerCase() !== 'failure') return null;
-    if (this.octokit === undefined) return null;
-    const { owner, repo } = github.context.repo;
-    try {
-      const { data } = await this.octokit.rest.actions.listJobsForWorkflowRun({
-        owner,
-        repo,
-        run_id: parseInt(this.runId, 10),
-      });
-      // Don't filter by job.conclusion: when this action runs, the
-      // current job's conclusion is still null. Scan all steps and
-      // pick whichever ones report conclusion === 'failure'.
-      const failed: string[] = [];
-      for (const job of data.jobs) {
-        const steps = job.steps ?? [];
-        for (const step of steps) {
-          if (step.conclusion === 'failure') {
-            failed.push(`${job.name} > ${step.name}`);
-          }
-        }
-      }
-      if (failed.length === 0) return null;
-      return {
-        title: 'workflow failed steps',
-        value: failed.map(s => `• ${s}`).join('\n'),
-        short: false,
-      };
-    } catch (e) {
-      core.debug(
-        `failedStepsField error: ${e instanceof Error ? e.message : String(e)}`,
-      );
-      return null;
-    }
   }
 
   private async message(message: string) {
