@@ -121,7 +121,7 @@ jobs:
           status: success
           channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
           username: 'e2e-bot (url)'
-          icon_url: 'https://github.githubassets.com/images/modules/logos_page/Octocat.png'
+          icon_url: 'https://avatars.githubusercontent.com/u/583231?s=192'
           text: '[e2e:${{ env.MARKER }}] bot-icon-url'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
