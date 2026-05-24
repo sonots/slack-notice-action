@@ -58,22 +58,26 @@ the failing step.
 
 ## Verification (via Slack MCP)
 
-1. **Resolve the channel.** Call `mcp__claude_ai_Slack__slack_search_channels`
-   with the channel name (strip the leading `#`) to obtain the channel
-   ID. If the user provided `SLACK_BOT_TOKEN_TEST_CHANNEL` as a `C…` ID, skip this
-   step.
-2. **Read recent messages.** Call
-   `mcp__claude_ai_Slack__slack_read_channel` against the resolved
-   channel. Fetch enough messages to cover the run (≥ 20 is usually
-   safe; bump if other traffic is high).
-3. **Filter by marker.** Keep only messages whose `text` (top-level)
-   contains `[e2e:<RUN_MARKER>]`. Custom-payload messages embed the
-   marker in the payload's `text` field.
-4. **Check expected count.**
+You do **not** need to know which channels the secrets resolve to. The
+secrets (`SLACK_BOT_TOKEN_TEST_CHANNEL`, `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`)
+are write-only from outside; instead, locate the messages by the unique
+`RUN_MARKER` you passed in.
+
+1. **Search by marker.** Call
+   `mcp__claude_ai_Slack__slack_search_public_and_private` with query
+   `"[e2e:<RUN_MARKER>]"` (quoted, including the brackets). The marker
+   is unique per dispatch so the result set is exactly the messages
+   posted by this run, regardless of which channels they landed in.
+   - If the search returns 0 hits, retry after ~10 seconds — Slack
+     search indexing has lag.
+   - If you only need to verify one transport, you can also use
+     `slack_read_channel` against a channel you already know, but that
+     requires the channel ID up front.
+2. **Check expected count.**
    - `mode=both` → 9 messages (webhook 4 + bot_token 5)
    - `mode=webhook` → 4
    - `mode=bot_token` → 5
-5. **Per-message assertions** (match by the suffix after the marker):
+3. **Per-message assertions** (match by the suffix after the marker):
 
    | Suffix | Mode | Expected |
    |---|---|---|
@@ -105,9 +109,11 @@ Do not delete or modify the test messages.
 
 ## Troubleshooting hints
 
-- **No messages match the marker.** The action may have posted but to
-  the wrong channel — check `SLACK_BOT_TOKEN_TEST_CHANNEL` and that the webhook
-  URL points at the same workspace as `SLACK_BOT_TOKEN`.
+- **No messages match the marker.** First retry after 10s in case of
+  search indexing lag. If still 0 hits, the action may have posted to a
+  workspace the MCP server isn't connected to — verify
+  `SLACK_BOT_TOKEN_TEST_CHANNEL` and `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`
+  point at the workspace the MCP is authenticated against.
 - **`bot_token` job failed with `not_in_channel`.** The bot is missing
   from the channel. Stop and ask the user to `/invite @<bot-name>`.
 - **`bot_token` job failed with `missing_scope`.** Ask the user to add
