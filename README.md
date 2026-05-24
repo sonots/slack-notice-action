@@ -29,14 +29,22 @@ Webhook URL** or a **Bot Token**.
 
 ```yaml
 - uses: sonots/slack-notice-action@v4
-  with:
-    status: ${{ job.status }}
-    only_mention_fail: 'channel'
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # `secrets.GITHUB_TOKEN` is automatically provided by GitHub Actions
     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Slack App Incoming Webhook URL which you must provide
+  with:
+    status: ${{ job.status }}
+    only_mention_fail: 'channel'
   if: always() # Pick up events even if the job fails or is canceled.
 ```
+
+## Environment Variables
+
+| Name                | Required | Description                                                                                  |
+| ------------------- | :------: | -------------------------------------------------------------------------------------------- |
+| `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions.                |
+| `SLACK_WEBHOOK_URL` | one of   | Slack App Incoming Webhook URL. Triggers **Webhook mode**.                                   |
+| `SLACK_BOT_TOKEN`   | one of   | Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
 
 ## Input Parameters
 
@@ -70,14 +78,6 @@ fields server-side.
 There are no Webhook-mode-only inputs.
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
-
-## Environment Variables
-
-| Name                | Required | Description                                                                                  |
-| ------------------- | :------: | -------------------------------------------------------------------------------------------- |
-| `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions.                |
-| `SLACK_WEBHOOK_URL` | one of   | Slack App Incoming Webhook URL. Triggers **Webhook mode**.                                   |
-| `SLACK_BOT_TOKEN`   | one of   | Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
 
 ## Custom Text and Mentions
 
