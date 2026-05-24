@@ -6,14 +6,13 @@ exercises both. Set up the secrets below before dispatching it.
 
 | Secret | Used by | Notes |
 |---|---|---|
-| `SLACK_WEBHOOK_URL` | `test.yml`, `release.yml`, trailing step in `slack-mainline.yml` | Standard notification target. |
-| `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST` | `slack-mainline.yml`, `e2e.yml` (webhook job) | Dedicated test channel. May reuse the same URL as above if you don't need to isolate. |
+| `SLACK_WEBHOOK_URL` | `test.yml`, `release.yml`, `slack-mainline.yml`, `e2e.yml` (webhook job) | Incoming Webhook URL. |
 | `SLACK_BOT_TOKEN` | `e2e.yml` (bot_token job) | `xoxb-…` Bot User OAuth token. |
 | `SLACK_BOT_TOKEN_TEST_CHANNEL` | `e2e.yml` (bot_token job) | Channel ID (`C…`) or `#name`. Bot must be a member. |
 
 ### 1. Create an Incoming Webhook (Slack App)
 
-Used for `SLACK_WEBHOOK_URL` and `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`.
+Used for `SLACK_WEBHOOK_URL`.
 
 1. Open https://api.slack.com/apps and click **Create New App** → **From scratch**.
 2. Pick an app name (e.g. `slack-notice-action-ci`) and the test workspace, then **Create App**.
@@ -21,10 +20,6 @@ Used for `SLACK_WEBHOOK_URL` and `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`.
 4. Scroll down and click **Add New Webhook to Workspace**.
 5. Choose the channel that should receive test messages (a dedicated `#test_slack_notice_action` channel is recommended) and click **Allow**.
 6. Copy the generated `https://hooks.slack.com/services/T.../B.../...` URL.
-
-You can reuse the same URL for both `SLACK_WEBHOOK_URL` and
-`SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`, or create two separate webhooks if you
-want to route them to different channels.
 
 ### 2. Create a Bot Token Slack App
 
@@ -49,10 +44,9 @@ Repeat for each secret.
 **`gh` CLI:**
 
 ```
-$ gh secret set SLACK_WEBHOOK_URL                       -R sonots/slack-notice-action
-$ gh secret set SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST  -R sonots/slack-notice-action
-$ gh secret set SLACK_BOT_TOKEN                         -R sonots/slack-notice-action
-$ gh secret set SLACK_BOT_TOKEN_TEST_CHANNEL            -R sonots/slack-notice-action
+$ gh secret set SLACK_WEBHOOK_URL              -R sonots/slack-notice-action
+$ gh secret set SLACK_BOT_TOKEN                -R sonots/slack-notice-action
+$ gh secret set SLACK_BOT_TOKEN_TEST_CHANNEL   -R sonots/slack-notice-action
 ```
 
 Each command prompts for the value — paste it and press Enter.

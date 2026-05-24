@@ -23,7 +23,7 @@ The repository must already have these secrets configured. If any are
 missing, stop and tell the user to follow
 [`DEVELOPMENT.md → Prepare Slack credentials`](DEVELOPMENT.md#prepare-slack-credentials):
 
-- `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`
+- `SLACK_WEBHOOK_URL`
 - `SLACK_BOT_TOKEN`
 - `SLACK_BOT_TOKEN_TEST_CHANNEL`
 
@@ -59,7 +59,7 @@ the failing step.
 ## Verification (via Slack MCP)
 
 You do **not** need to know which channels the secrets resolve to. The
-secrets (`SLACK_BOT_TOKEN_TEST_CHANNEL`, `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`)
+secrets (`SLACK_BOT_TOKEN_TEST_CHANNEL`, `SLACK_WEBHOOK_URL`)
 are write-only from outside; instead, locate the messages by the unique
 `RUN_MARKER` you passed in.
 
@@ -112,7 +112,7 @@ Do not delete or modify the test messages.
 - **No messages match the marker.** First retry after 10s in case of
   search indexing lag. If still 0 hits, the action may have posted to a
   workspace the MCP server isn't connected to — verify
-  `SLACK_BOT_TOKEN_TEST_CHANNEL` and `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`
+  `SLACK_BOT_TOKEN_TEST_CHANNEL` and `SLACK_WEBHOOK_URL`
   point at the workspace the MCP is authenticated against.
 - **`bot_token` job failed with `not_in_channel`.** The bot is missing
   from the channel. Stop and ask the user to `/invite @<bot-name>`.

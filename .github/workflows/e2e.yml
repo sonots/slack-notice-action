@@ -30,7 +30,7 @@ jobs:
           text: '[e2e:${{ env.MARKER }}] webhook-success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Webhook / Failure
         uses: ./
         with:
@@ -38,7 +38,7 @@ jobs:
           text: '[e2e:${{ env.MARKER }}] webhook-failure'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Webhook / Cancelled
         uses: ./
         with:
@@ -46,7 +46,7 @@ jobs:
           text: '[e2e:${{ env.MARKER }}] webhook-cancelled'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Webhook / Custom payload
         uses: ./
         with:
@@ -68,7 +68,7 @@ jobs:
             }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   bot_token:
     if: ${{ inputs.mode == 'bot_token' || inputs.mode == 'both' }}
