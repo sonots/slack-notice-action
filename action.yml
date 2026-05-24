@@ -45,16 +45,6 @@ inputs:
       Override the bot icon for this message with an image URL.
       Bot Token mode only.
     default: ''
-  update_ts:
-    description: |
-      Slack message `ts` to update instead of posting a new message.
-      Bot Token mode only. Pair with the `ts` output of a previous step.
-    default: ''
-outputs:
-  ts:
-    description: |
-      Slack message timestamp (`ts`) of the posted/updated message.
-      Bot Token mode only. Empty in Webhook mode.
 runs:
   using: node24
   main: dist/index.js

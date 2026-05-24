@@ -53,7 +53,6 @@ Webhook URL** or a **Bot Token**.
 | `username`          | any string                                                                      | `''`          | Override bot display name. **Bot Token mode only.**                                                      |
 | `icon_emoji`        | `:emoji:`                                                                       | `''`          | Override bot icon with an emoji. **Bot Token mode only.**                                                |
 | `icon_url`          | image URL                                                                       | `''`          | Override bot icon with an image URL. **Bot Token mode only.**                                            |
-| `update_ts`         | Slack message `ts`                                                              | `''`          | Update an existing message instead of posting a new one. **Bot Token mode only.**                       |
 | `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
@@ -96,43 +95,14 @@ that modern webhooks no longer support:
 - Choose `channel` at post time (route prod alerts to `#alerts`, PR
   noise to `#ci-noisy`, etc.)
 - Override `username` / `icon_emoji` / `icon_url` per message
-- Update a previously-posted message via `update_ts`
 
 ```yaml
-- id: notify
-  uses: sonots/slack-notice-action@v4
+- uses: sonots/slack-notice-action@v4
   with:
     status: ${{ job.status }}
     channel: '#alerts'
     username: 'CI Bot (prod)'
     icon_emoji: ':rocket:'
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-```
-
-To update the same message from a later step (e.g. mark "in progress" → "done"):
-
-```yaml
-- id: start
-  uses: sonots/slack-notice-action@v4
-  with:
-    status: custom
-    channel: '#alerts'
-    payload: |
-      { text: ':hourglass_flowing_sand: Deploying…' }
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
-- run: ./deploy.sh
-
-- uses: sonots/slack-notice-action@v4
-  if: always()
-  with:
-    status: ${{ job.status }}
-    channel: '#alerts'
-    update_ts: ${{ steps.start.outputs.ts }}
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -144,7 +114,7 @@ Set under your Slack App's **OAuth & Permissions → Bot Token Scopes**:
 
 | Scope                   | Why                                                        |
 | ----------------------- | ---------------------------------------------------------- |
-| `chat:write`            | Post / update messages.                                    |
+| `chat:write`            | Post messages.                                             |
 | `chat:write.customize`  | Override `username` / `icon_emoji` / `icon_url`.           |
 | `chat:write.public`     | Post to public channels without inviting the bot first.    |
 
@@ -186,12 +156,6 @@ References:
 
 - [Reference: Message payloads](https://api.slack.com/reference/messaging/payload)
 - [Block Kit Builder](https://app.slack.com/block-kit-builder) — for richer layouts using `blocks` instead of `attachments`
-
-## Outputs
-
-| Name | Description                                                                                  |
-| ---- | -------------------------------------------------------------------------------------------- |
-| `ts` | Slack message timestamp of the posted/updated message. **Bot Token mode only**; empty in Webhook mode. Use with `update_ts` to chain edits. |
 
 ## Screenshots
 

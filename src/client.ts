@@ -17,7 +17,6 @@ export interface With {
   username: string;
   icon_emoji: string;
   icon_url: string;
-  update_ts: string;
 }
 
 const groupMention = ['here', 'channel'];
@@ -56,11 +55,6 @@ export class Client {
       this.web = new WebClient(botToken);
       this.mode = 'bot_token';
     } else if (webhookUrl) {
-      if (props.update_ts !== '') {
-        core.warning(
-          '`update_ts` is ignored in Webhook mode (requires SLACK_BOT_TOKEN).',
-        );
-      }
       if (
         props.username !== '' ||
         props.icon_emoji !== '' ||
@@ -102,22 +96,22 @@ export class Client {
     return template;
   }
 
-  async send(payload: string | IncomingWebhookSendArguments): Promise<string> {
+  async send(payload: string | IncomingWebhookSendArguments): Promise<void> {
     core.debug(JSON.stringify(github.context, null, 2));
     if (this.mode === 'bot_token') {
-      return this.sendViaBotToken(payload);
+      await this.sendViaBotToken(payload);
+      return;
     }
     if (this.webhook === undefined) {
       throw new Error('Webhook client is not initialized');
     }
     await this.webhook.send(payload);
     core.debug('send message');
-    return '';
   }
 
   private async sendViaBotToken(
     payload: string | IncomingWebhookSendArguments,
-  ): Promise<string> {
+  ): Promise<void> {
     if (this.web === undefined) {
       throw new Error('WebClient is not initialized');
     }
@@ -128,25 +122,14 @@ export class Client {
     const args: Record<string, unknown> = { channel, text: body.text ?? '' };
     if (body.attachments) args.attachments = body.attachments;
     if (body.blocks) args.blocks = body.blocks;
-
-    if (this.with.update_ts !== '') {
-      args.ts = this.with.update_ts;
-      const res = await this.web.chat.update(
-        args as unknown as Parameters<WebClient['chat']['update']>[0],
-      );
-      core.debug('update message');
-      return (res.ts as string) ?? '';
-    }
-
     if (this.with.username) args.username = this.with.username;
     if (this.with.icon_emoji) args.icon_emoji = this.with.icon_emoji;
     if (this.with.icon_url) args.icon_url = this.with.icon_url;
 
-    const res = await this.web.chat.postMessage(
+    await this.web.chat.postMessage(
       args as unknown as Parameters<WebClient['chat']['postMessage']>[0],
     );
     core.debug('send message');
-    return (res.ts as string) ?? '';
   }
 
   private async payloadTemplate() {

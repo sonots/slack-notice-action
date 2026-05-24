@@ -75865,9 +75865,6 @@ class Client {
             this.mode = 'bot_token';
         }
         else if (webhookUrl) {
-            if (props.update_ts !== '') {
-                core.warning('`update_ts` is ignored in Webhook mode (requires SLACK_BOT_TOKEN).');
-            }
             if (props.username !== '' ||
                 props.icon_emoji !== '' ||
                 props.icon_url !== '') {
@@ -75902,14 +75899,14 @@ class Client {
     async send(payload) {
         core.debug(JSON.stringify(github_context, null, 2));
         if (this.mode === 'bot_token') {
-            return this.sendViaBotToken(payload);
+            await this.sendViaBotToken(payload);
+            return;
         }
         if (this.webhook === undefined) {
             throw new Error('Webhook client is not initialized');
         }
         await this.webhook.send(payload);
         core.debug('send message');
-        return '';
     }
     async sendViaBotToken(payload) {
         if (this.web === undefined) {
@@ -75922,21 +75919,14 @@ class Client {
             args.attachments = body.attachments;
         if (body.blocks)
             args.blocks = body.blocks;
-        if (this.with.update_ts !== '') {
-            args.ts = this.with.update_ts;
-            const res = await this.web.chat.update(args);
-            core.debug('update message');
-            return res.ts ?? '';
-        }
         if (this.with.username)
             args.username = this.with.username;
         if (this.with.icon_emoji)
             args.icon_emoji = this.with.icon_emoji;
         if (this.with.icon_url)
             args.icon_url = this.with.icon_url;
-        const res = await this.web.chat.postMessage(args);
+        await this.web.chat.postMessage(args);
         core.debug('send message');
-        return res.ts ?? '';
     }
     async payloadTemplate() {
         const text = this.mentionText(this.with.mention);
@@ -76181,7 +76171,6 @@ async function run() {
         const username = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('username');
         const icon_emoji = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('icon_emoji');
         const icon_url = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('icon_url');
-        const update_ts = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('update_ts');
         const rawPayload = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('payload');
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`status: ${status}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`mention: ${mention}`);
@@ -76195,7 +76184,6 @@ async function run() {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`username: ${username}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`icon_emoji: ${icon_emoji}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`icon_url: ${icon_url}`);
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`update_ts: ${update_ts}`);
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`rawPayload: ${rawPayload}`);
         const client = new _client_js__WEBPACK_IMPORTED_MODULE_1__/* .Client */ .K({
             status,
@@ -76210,29 +76198,26 @@ async function run() {
             username,
             icon_emoji,
             icon_url,
-            update_ts,
         }, process.env.GITHUB_TOKEN, process.env.SLACK_WEBHOOK_URL, process.env.SLACK_BOT_TOKEN);
-        let ts = '';
         switch (status) {
             case 'success':
-                ts = await client.send(await client.success());
+                await client.send(await client.success());
                 break;
             case 'failure':
-                ts = await client.send(await client.fail());
+                await client.send(await client.fail());
                 break;
             case 'cancelled':
-                ts = await client.send(await client.cancel());
+                await client.send(await client.cancel());
                 break;
             case 'custom':
                 /* eslint-disable no-var */
                 var payload = eval(`payload = ${rawPayload}`);
                 /* eslint-enable */
-                ts = await client.send(payload);
+                await client.send(payload);
                 break;
             default:
                 throw new Error('You can specify success or failure or cancelled or custom');
         }
-        _actions_core__WEBPACK_IMPORTED_MODULE_0__.setOutput('ts', ts);
     }
     catch (error) {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error instanceof Error ? error.message : String(error));
