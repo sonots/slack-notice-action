@@ -9,7 +9,7 @@ exercises both. Set up the secrets below before dispatching it.
 | `SLACK_WEBHOOK_URL` | `test.yml`, `release.yml`, trailing step in `slack-mainline.yml` | Standard notification target. |
 | `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST` | `slack-mainline.yml`, `e2e.yml` (webhook job) | Dedicated test channel. May reuse the same URL as above if you don't need to isolate. |
 | `SLACK_BOT_TOKEN` | `e2e.yml` (bot_token job) | `xoxb-…` Bot User OAuth token. |
-| `SLACK_TEST_CHANNEL` | `e2e.yml` (bot_token job) | Channel ID (`C…`) or `#name`. Bot must be a member. |
+| `SLACK_BOT_TOKEN_TEST_CHANNEL` | `e2e.yml` (bot_token job) | Channel ID (`C…`) or `#name`. Bot must be a member. |
 
 ### 1. Create an Incoming Webhook (Slack App)
 
@@ -28,7 +28,7 @@ want to route them to different channels.
 
 ### 2. Create a Bot Token Slack App
 
-Used for `SLACK_BOT_TOKEN` and `SLACK_TEST_CHANNEL`.
+Used for `SLACK_BOT_TOKEN` and `SLACK_BOT_TOKEN_TEST_CHANNEL`.
 
 1. Open https://api.slack.com/apps and either reuse the app from step 1 or **Create New App** → **From scratch**.
 2. In the left sidebar, open **OAuth & Permissions**.
@@ -52,7 +52,7 @@ Repeat for each secret.
 $ gh secret set SLACK_WEBHOOK_URL                       -R sonots/slack-notice-action
 $ gh secret set SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST  -R sonots/slack-notice-action
 $ gh secret set SLACK_BOT_TOKEN                         -R sonots/slack-notice-action
-$ gh secret set SLACK_TEST_CHANNEL                      -R sonots/slack-notice-action
+$ gh secret set SLACK_BOT_TOKEN_TEST_CHANNEL            -R sonots/slack-notice-action
 ```
 
 Each command prompts for the value — paste it and press Enter.
@@ -70,7 +70,7 @@ Every step in the `webhook` and `bot_token` jobs should be green, and
 the corresponding messages should appear in the Slack channel(s). For
 the full Claude-driven verification flow (including programmatic checks
 of colors, `username`, and `icon_*` overrides) see
-[`docs/e2e.md`](e2e.md) / [`docs/e2e.ja.md`](e2e.ja.md).
+[`docs/e2e.md`](e2e.md).
 
 ### Troubleshooting
 
@@ -78,7 +78,7 @@ of colors, `username`, and `icon_*` overrides) see
   invalid, expired, or has been revoked. Recreate it via the steps above and
   re-register the secret.
 - **`channel_not_found`** — the bot is not a member of a private channel, or
-  `SLACK_TEST_CHANNEL` is wrong. Either `/invite @<bot-name>` into the
+  `SLACK_BOT_TOKEN_TEST_CHANNEL` is wrong. Either `/invite @<bot-name>` into the
   channel, or grant `chat:write.public` and target a public channel.
 - **`missing_scope`** — the app was installed before you added the required
   scope. Add the scope under **OAuth & Permissions → Bot Token Scopes**

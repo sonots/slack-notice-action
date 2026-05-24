@@ -5,8 +5,6 @@ the action's end-to-end test against a real Slack workspace. Humans can
 follow it too, but the language assumes an automated executor with
 `gh` CLI access and the `claude.ai_Slack` MCP server enabled.
 
-The runbook is also available in Japanese: [`e2e.ja.md`](e2e.ja.md).
-
 ## What this verifies
 
 The [`E2E` workflow](../.github/workflows/e2e.yml) dispatches the action
@@ -27,10 +25,10 @@ missing, stop and tell the user to follow
 
 - `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`
 - `SLACK_BOT_TOKEN`
-- `SLACK_TEST_CHANNEL`
+- `SLACK_BOT_TOKEN_TEST_CHANNEL`
 
 The Slack bot identified by `SLACK_BOT_TOKEN` must be a member of
-`SLACK_TEST_CHANNEL` (for private channels) or the app must hold the
+`SLACK_BOT_TOKEN_TEST_CHANNEL` (for private channels) or the app must hold the
 `chat:write.public` scope (for public channels).
 
 You also need:
@@ -62,7 +60,7 @@ the failing step.
 
 1. **Resolve the channel.** Call `mcp__claude_ai_Slack__slack_search_channels`
    with the channel name (strip the leading `#`) to obtain the channel
-   ID. If the user provided `SLACK_TEST_CHANNEL` as a `C…` ID, skip this
+   ID. If the user provided `SLACK_BOT_TOKEN_TEST_CHANNEL` as a `C…` ID, skip this
    step.
 2. **Read recent messages.** Call
    `mcp__claude_ai_Slack__slack_read_channel` against the resolved
@@ -108,7 +106,7 @@ Do not delete or modify the test messages.
 ## Troubleshooting hints
 
 - **No messages match the marker.** The action may have posted but to
-  the wrong channel — check `SLACK_TEST_CHANNEL` and that the webhook
+  the wrong channel — check `SLACK_BOT_TOKEN_TEST_CHANNEL` and that the webhook
   URL points at the same workspace as `SLACK_BOT_TOKEN`.
 - **`bot_token` job failed with `not_in_channel`.** The bot is missing
   from the channel. Stop and ask the user to `/invite @<bot-name>`.

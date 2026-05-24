@@ -81,7 +81,7 @@ jobs:
         uses: ./
         with:
           status: success
-          channel: ${{ secrets.SLACK_TEST_CHANNEL }}
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
           text: '[e2e:${{ env.MARKER }}] bot-success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -90,7 +90,7 @@ jobs:
         uses: ./
         with:
           status: failure
-          channel: ${{ secrets.SLACK_TEST_CHANNEL }}
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
           text: '[e2e:${{ env.MARKER }}] bot-failure'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,7 +99,7 @@ jobs:
         uses: ./
         with:
           status: cancelled
-          channel: ${{ secrets.SLACK_TEST_CHANNEL }}
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
           text: '[e2e:${{ env.MARKER }}] bot-cancelled'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -108,7 +108,7 @@ jobs:
         uses: ./
         with:
           status: success
-          channel: ${{ secrets.SLACK_TEST_CHANNEL }}
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
           username: 'e2e-bot (emoji)'
           icon_emoji: ':rocket:'
           text: '[e2e:${{ env.MARKER }}] bot-username-emoji'
@@ -119,7 +119,7 @@ jobs:
         uses: ./
         with:
           status: success
-          channel: ${{ secrets.SLACK_TEST_CHANNEL }}
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
           username: 'e2e-bot (url)'
           icon_url: 'https://github.githubassets.com/images/modules/logos_page/Octocat.png'
           text: '[e2e:${{ env.MARKER }}] bot-icon-url'
