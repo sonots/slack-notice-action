@@ -19,9 +19,10 @@ Webhook URL** or a **Bot Token**.
 - [Custom Text and Mentions](#custom-text-and-mentions)
 - [Bot Token Mode](#bot-token-mode)
 - [Custom Payload](#custom-payload)
-- [Outputs](#outputs)
 - [Screenshots](#screenshots)
 - [Slack App Setup](#slack-app-setup)
+  - [Incoming Webhook](#incoming-webhook)
+  - [Bot Token App](#bot-token-app)
 - [Migration & Changelog](#migration--changelog)
 
 ## Quick Start
@@ -39,6 +40,8 @@ Webhook URL** or a **Bot Token**.
 
 ## Input Parameters
 
+### Common (both modes)
+
 | Key                 | Value                                                                           | Default       | Description                                                                                              |
 | ------------------- | ------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
 | `status`            | <ul><li>`success`</li><li>`failure`</li><li>`cancelled`</li><li>`custom`</li></ul> | —           | **Required.** Use `${{ job.status }}` for the first three.                                               |
@@ -49,11 +52,22 @@ Webhook URL** or a **Bot Token**.
 | `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
 | `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
 | `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
-| `channel`           | channel ID (e.g. `C0123456789`) or `#name`                                      | `''`          | **Required in Bot Token mode.** Ignored in Webhook mode.                                                 |
-| `username`          | any string                                                                      | `''`          | Override bot display name. **Bot Token mode only.**                                                      |
-| `icon_emoji`        | `:emoji:`                                                                       | `''`          | Override bot icon with an emoji. **Bot Token mode only.**                                                |
-| `icon_url`          | image URL                                                                       | `''`          | Override bot icon with an image URL. **Bot Token mode only.**                                            |
 | `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
+
+### Bot Token mode only
+
+Set when `SLACK_BOT_TOKEN` is provided. Ignored (with a warning) in
+Webhook mode, since modern Slack App Incoming Webhooks drop these
+fields server-side.
+
+| Key          | Value                                       | Default | Description                                                            |
+| ------------ | ------------------------------------------- | ------- | ---------------------------------------------------------------------- |
+| `channel`    | channel ID (e.g. `C0123456789`) or `#name`  | `''`    | **Required in Bot Token mode.** Destination channel for the message.   |
+| `username`   | any string                                  | `''`    | Override bot display name for this message.                            |
+| `icon_emoji` | `:emoji:`                                   | `''`    | Override bot icon with an emoji.                                       |
+| `icon_url`   | image URL                                   | `''`    | Override bot icon with an image URL.                                   |
+
+There are no Webhook-mode-only inputs.
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
 
@@ -108,18 +122,8 @@ that modern webhooks no longer support:
     SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 ```
 
-### Required Slack scopes
-
-Set under your Slack App's **OAuth & Permissions → Bot Token Scopes**:
-
-| Scope                   | Why                                                        |
-| ----------------------- | ---------------------------------------------------------- |
-| `chat:write`            | Post messages.                                             |
-| `chat:write.customize`  | Override `username` / `icon_emoji` / `icon_url`.           |
-| `chat:write.public`     | Post to public channels without inviting the bot first.    |
-
-Reinstall the app to the workspace after changing scopes, then copy the
-**Bot User OAuth Token** (`xoxb-…`) into the `SLACK_BOT_TOKEN` secret.
+See [Slack App Setup → Bot Token App](#bot-token-app) for how to create
+the app, set scopes, and obtain the `xoxb-…` token.
 
 ## Custom Payload
 
@@ -165,8 +169,13 @@ References:
 
 ## Slack App Setup
 
-This action requires a **Slack App Incoming Webhook URL**, which you
-store in the `SLACK_WEBHOOK_URL` repository secret.
+Pick **one** of the two transports below. You only need to set up the
+one you intend to use.
+
+### Incoming Webhook
+
+Simpler to set up; channel is fixed by the webhook URL. Store the URL
+in the `SLACK_WEBHOOK_URL` repository secret.
 
 1. Open <https://api.slack.com/apps> and click **Create New App** → **From scratch**.
 2. Pick an app name and your workspace, then **Create App**.
@@ -178,6 +187,34 @@ store in the `SLACK_WEBHOOK_URL` repository secret.
    - CLI: `gh secret set SLACK_WEBHOOK_URL`
 
 Reference: [Slack: Sending messages using Incoming Webhooks](https://api.slack.com/messaging/webhooks).
+
+### Bot Token App
+
+Pick channels per-message and override `username` / `icon_emoji` /
+`icon_url`. Store the token in the `SLACK_BOT_TOKEN` repository secret.
+
+1. Open <https://api.slack.com/apps> and click **Create New App** → **From scratch**.
+2. Pick an app name and your workspace, then **Create App**.
+3. In the sidebar, open **OAuth & Permissions**.
+4. Under **Bot Token Scopes**, add:
+
+   | Scope                   | Why                                                     |
+   | ----------------------- | ------------------------------------------------------- |
+   | `chat:write`            | Post messages.                                          |
+   | `chat:write.customize`  | Override `username` / `icon_emoji` / `icon_url`.        |
+   | `chat:write.public`     | Post to public channels without inviting the bot first. |
+
+5. Click **Install to Workspace** at the top of the page and **Allow**.
+   (If you change scopes later, use **Reinstall to Workspace**.)
+6. Copy the **Bot User OAuth Token** (starts with `xoxb-…`) shown on
+   the OAuth & Permissions page.
+7. Add it as a repository secret named `SLACK_BOT_TOKEN`:
+   - GitHub UI: **Settings → Secrets and variables → Actions → New repository secret**, or
+   - CLI: `gh secret set SLACK_BOT_TOKEN`
+8. For private channels (or if you skipped `chat:write.public`), invite
+   the bot to the destination channel: `/invite @YourBotName`.
+
+Reference: [Slack: Token types](https://api.slack.com/concepts/token-types).
 
 ## Migration & Changelog
 
