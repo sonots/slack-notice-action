@@ -33150,6 +33150,7 @@ async function getFileUploadJob(options, logger) {
         blocks: options.blocks,
         channel_id: (_a = options.channels) !== null && _a !== void 0 ? _a : options.channel_id,
         filename: (_b = options.filename) !== null && _b !== void 0 ? _b : fileName,
+        highlight_type: options.highlight_type,
         initial_comment: options.initial_comment,
         snippet_type: options.snippet_type,
         title: (_d = (_c = options.title) !== null && _c !== void 0 ? _c : options.filename) !== null && _d !== void 0 ? _d : fileName, // default title to filename unless otherwise specified
@@ -33300,13 +33301,13 @@ async function getFileDataAsStream(readable) {
 function getAllFileUploadsToComplete(fileUploads) {
     const toComplete = {};
     for (const upload of fileUploads) {
-        const { blocks, channel_id, thread_ts, initial_comment, file_id, title } = upload;
+        const { blocks, channel_id, thread_ts, highlight_type, initial_comment, file_id, title } = upload;
         if (file_id) {
             const compareString = `:::${channel_id}:::${thread_ts}:::${initial_comment}:::${JSON.stringify(blocks)}`;
             // biome-ignore lint/suspicious/noPrototypeBuiltins: TODO use hasOwn instead of hasOwnProperty
             if (!Object.prototype.hasOwnProperty.call(toComplete, compareString)) {
                 toComplete[compareString] = {
-                    files: [{ id: file_id, title }],
+                    files: [{ id: file_id, title, highlight_type }],
                     channel_id,
                     blocks,
                     initial_comment,
@@ -33326,6 +33327,7 @@ function getAllFileUploadsToComplete(fileUploads) {
                 toComplete[compareString].files.push({
                     id: file_id,
                     title,
+                    highlight_type,
                 });
             }
         }
@@ -76078,7 +76080,7 @@ class Client {
 /***/ 6734:
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@slack/web-api","version":"7.15.2","description":"Official library for using the Slack Platform\'s Web API","author":"Slack Technologies, LLC","license":"MIT","keywords":["slack","web-api","bot","client","http","api","proxy","rate-limiting","pagination"],"main":"dist/index.js","types":"./dist/index.d.ts","files":["dist/**/*"],"engines":{"node":">= 18","npm":">= 8.6.0"},"repository":{"type":"git","url":"git+https://github.com/slackapi/node-slack-sdk.git"},"homepage":"https://docs.slack.dev/tools/node-slack-sdk/web-api/","publishConfig":{"access":"public"},"bugs":{"url":"https://github.com/slackapi/node-slack-sdk/issues"},"scripts":{"build":"npm run build:clean && tsc","build:clean":"shx rm -rf ./dist","docs":"npx typedoc --plugin typedoc-plugin-markdown","prepack":"npm run build","test":"npm run build && bash -c \'node --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=test-results.xml --import tsx --test src/*.test.ts\'","test:coverage":"npm run build && node --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=lcov.info --test-reporter=junit --test-reporter-destination=test-results.xml --import tsx --test src/*.test.ts","test:integration":"npm run build && node test/integration/commonjs-project/index.js && node test/integration/esm-project/index.mjs && npm run test:integration:ts","test:integration:ts":"cd test/integration/ts-4.7-project && npm i && npm run build","test:types":"tsd","watch":"npx nodemon --watch \'src\' --ext \'ts\' --exec npm run build"},"dependencies":{"@slack/logger":"^4.0.1","@slack/types":"^2.21.0","@types/node":">=18","@types/retry":"0.12.0","axios":"^1.15.0","eventemitter3":"^5.0.1","form-data":"^4.0.4","is-electron":"2.2.2","is-stream":"^2","p-queue":"^6","p-retry":"^4","retry":"^0.13.1"},"devDependencies":{"@types/busboy":"^1.5.4","@types/sinon":"^21","busboy":"^1","nock":"^14","sinon":"^21","tsd":"^0.33.0"},"tsd":{"directory":"test/types"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@slack/web-api","version":"7.16.0","description":"Official library for using the Slack Platform\'s Web API","author":"Slack Technologies, LLC","license":"MIT","keywords":["slack","web-api","bot","client","http","api","proxy","rate-limiting","pagination"],"main":"dist/index.js","types":"./dist/index.d.ts","files":["dist/**/*"],"engines":{"node":">= 18","npm":">= 8.6.0"},"repository":{"type":"git","url":"git+https://github.com/slackapi/node-slack-sdk.git"},"homepage":"https://docs.slack.dev/tools/node-slack-sdk/web-api/","publishConfig":{"access":"public"},"bugs":{"url":"https://github.com/slackapi/node-slack-sdk/issues"},"scripts":{"build":"npm run build:clean && tsc","build:clean":"shx rm -rf ./dist","docs":"npx typedoc --plugin typedoc-plugin-markdown","prepack":"npm run build","test":"npm run build && bash -c \'node --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=test-results.xml --import tsx --test src/*.test.ts\'","test:coverage":"npm run build && node --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=lcov.info --test-reporter=junit --test-reporter-destination=test-results.xml --import tsx --test src/*.test.ts","test:integration":"npm run build && node test/integration/commonjs-project/index.js && node test/integration/esm-project/index.mjs && npm run test:integration:ts","test:integration:ts":"cd test/integration/ts-4.7-project && npm i && npm run build","test:types":"tsd","watch":"npx nodemon --watch \'src\' --ext \'ts\' --exec npm run build"},"dependencies":{"@slack/logger":"^4.0.1","@slack/types":"^2.21.0","@types/node":">=18","@types/retry":"0.12.0","axios":"^1.16.0","eventemitter3":"^5.0.1","form-data":"^4.0.4","is-electron":"2.2.2","is-stream":"^2","p-queue":"^6","p-retry":"^4","retry":"^0.13.1"},"devDependencies":{"@types/busboy":"^1.5.4","@types/sinon":"^21","busboy":"^1","nock":"^14","sinon":"^21","tsd":"^0.33.0"},"tsd":{"directory":"test/types"}}');
 
 /***/ }),
 
