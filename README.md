@@ -14,11 +14,9 @@ Webhook URL** or a **Bot Token**.
 ## Contents
 
 - [Quick Start](#quick-start)
-- [Input Parameters](#input-parameters)
 - [Environment Variables](#environment-variables)
-- [Custom Text and Mentions](#custom-text-and-mentions)
-- [Bot Token Mode](#bot-token-mode)
-- [Custom Payload](#custom-payload)
+- [Input Parameters](#input-parameters)
+- [Examples](#examples)
 - [Screenshots](#screenshots)
 - [Slack App Setup](#slack-app-setup)
   - [Incoming Webhook](#incoming-webhook)
@@ -47,8 +45,6 @@ Webhook URL** or a **Bot Token**.
 | `SLACK_BOT_TOKEN`   | one of   | Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
 
 ## Input Parameters
-
-### Common
 
 | Key                 | Value                                                                           | Default       | Description                                                                                              |
 | ------------------- | ------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
@@ -79,7 +75,9 @@ There are no Webhook-mode-only inputs.
 
 [mentioning-users]: https://api.slack.com/reference/surfaces/formatting#mentioning-users
 
-## Custom Text and Mentions
+## Examples
+
+### Custom Text and Mentions
 
 Override the default message text per status and control who gets
 mentioned. `text_on_*` wins over `text`, and `only_mention_fail` only
@@ -101,7 +99,7 @@ fires when `status` is `failure`.
   if: always()
 ```
 
-## Bot Token Mode
+### Bot Token Mode
 
 Use a **Bot Token** instead of an Incoming Webhook to unlock features
 that modern webhooks no longer support:
@@ -125,7 +123,7 @@ that modern webhooks no longer support:
 See [Slack App Setup → Bot Token App](#bot-token-app) for how to create
 the app, set scopes, and obtain the `xoxb-…` token.
 
-## Custom Payload
+### Custom Payload
 
 Use `status: custom` when you want full control over the Slack payload.
 The `payload` input is evaluated as a JavaScript object literal, so you
