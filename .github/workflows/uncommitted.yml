@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # NOTE: Use node16 on local
-      - run: npm version
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
       - run: npm ci
-      - run: npm install
       - run: npm run release
       - name: check for uncommitted changes
         run: |

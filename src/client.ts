@@ -2,6 +2,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
+import { WebClient } from '@slack/web-api';
 
 export interface With {
   status: string;
@@ -12,31 +13,62 @@ export interface With {
   text_on_cancel: string;
   title: string;
   only_mention_fail: string;
+  channel: string;
+  username: string;
+  icon_emoji: string;
+  icon_url: string;
 }
 
 const groupMention = ['here', 'channel'];
 
 type Octokit = ReturnType<typeof github.getOctokit>;
+type Mode = 'bot_token' | 'webhook';
 
 export class Client {
-  private webhook: IncomingWebhook;
+  private webhook?: IncomingWebhook;
+  private web?: WebClient;
+  private mode: Mode;
   private octokit?: Octokit;
   private with: With;
 
-  constructor(props: With, token?: string, webhookUrl?: string) {
+  constructor(
+    props: With,
+    githubToken?: string,
+    webhookUrl?: string,
+    botToken?: string,
+  ) {
     this.with = props;
 
     if (props.status !== 'custom') {
-      if (token === undefined) {
+      if (githubToken === undefined) {
         throw new Error('Specify secrets.GITHUB_TOKEN');
       }
-      this.octokit = github.getOctokit(token);
+      this.octokit = github.getOctokit(githubToken);
     }
 
-    if (webhookUrl === undefined) {
-      throw new Error('Specify secrets.SLACK_WEBHOOK_URL');
+    if (botToken) {
+      if (props.channel === '') {
+        throw new Error(
+          'When using SLACK_BOT_TOKEN, `channel` input is required.',
+        );
+      }
+      this.web = new WebClient(botToken);
+      this.mode = 'bot_token';
+    } else if (webhookUrl) {
+      if (
+        props.username !== '' ||
+        props.icon_emoji !== '' ||
+        props.icon_url !== ''
+      ) {
+        core.warning(
+          'Modern Slack App Webhooks ignore `username` / `icon_emoji` / `icon_url`. Use SLACK_BOT_TOKEN to override.',
+        );
+      }
+      this.webhook = new IncomingWebhook(webhookUrl);
+      this.mode = 'webhook';
+    } else {
+      throw new Error('Specify SLACK_BOT_TOKEN or SLACK_WEBHOOK_URL');
     }
-    this.webhook = new IncomingWebhook(webhookUrl);
   }
 
   async success() {
@@ -64,9 +96,39 @@ export class Client {
     return template;
   }
 
-  async send(payload: string | IncomingWebhookSendArguments) {
+  async send(payload: string | IncomingWebhookSendArguments): Promise<void> {
     core.debug(JSON.stringify(github.context, null, 2));
+    if (this.mode === 'bot_token') {
+      await this.sendViaBotToken(payload);
+      return;
+    }
+    if (this.webhook === undefined) {
+      throw new Error('Webhook client is not initialized');
+    }
     await this.webhook.send(payload);
+    core.debug('send message');
+  }
+
+  private async sendViaBotToken(
+    payload: string | IncomingWebhookSendArguments,
+  ): Promise<void> {
+    if (this.web === undefined) {
+      throw new Error('WebClient is not initialized');
+    }
+    const body =
+      typeof payload === 'string' ? { text: payload } : { ...payload };
+    const channel = this.with.channel;
+
+    const args: Record<string, unknown> = { channel, text: body.text ?? '' };
+    if (body.attachments) args.attachments = body.attachments;
+    if (body.blocks) args.blocks = body.blocks;
+    if (this.with.username) args.username = this.with.username;
+    if (this.with.icon_emoji) args.icon_emoji = this.with.icon_emoji;
+    if (this.with.icon_url) args.icon_url = this.with.icon_url;
+
+    await this.web.chat.postMessage(
+      args as unknown as Parameters<WebClient['chat']['postMessage']>[0],
+    );
     core.debug('send message');
   }
 

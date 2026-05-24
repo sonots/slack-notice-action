@@ -1,6 +1,6 @@
 {
   "name": "slack-notice-action",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
   "description": "A Github Action to notify slack.",
   "type": "module",
@@ -34,7 +34,8 @@
     "@actions/exec": "^1.0.2",
     "@actions/github": "^9.1.1",
     "@actions/io": "^1.0.1",
-    "@actions/tool-cache": "^1.1.2",
+    "@actions/tool-cache": "^4.0.0",
+    "@slack/web-api": "^7.15.2",
     "@slack/webhook": "^7.0.9",
     "semver": "^7.1.1"
   },

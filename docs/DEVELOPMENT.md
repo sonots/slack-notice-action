@@ -1,16 +1,18 @@
-## Prepare Webhook URLs
+## Prepare Slack credentials
 
-The CI workflows reference two repository secrets. The integration-test secret
-must be valid for the `Slack Pre` / `Slack Mainline` workflows to pass.
+The action supports two transports — **Incoming Webhook** and
+**Bot Token** — and the [`E2E` workflow](../.github/workflows/e2e.yml)
+exercises both. Set up the secrets below before dispatching it.
 
-| Secret | Type | Used by |
+| Secret | Used by | Notes |
 |---|---|---|
-| `SLACK_WEBHOOK_URL` | Modern (Slack App) | `test.yml`, `release.yml`, and the trailing notification step in `slack-pre.yml` / `slack-mainline.yml` |
-| `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST` | Modern (Slack App) | `slack-pre.yml`, `slack-mainline.yml` |
+| `SLACK_WEBHOOK_URL` | `test.yml`, `release.yml`, `slack-mainline.yml`, `e2e.yml` (webhook job) | Incoming Webhook URL. |
+| `SLACK_BOT_TOKEN` | `e2e.yml` (bot_token job) | `xoxb-…` Bot User OAuth token. |
+| `SLACK_BOT_TOKEN_TEST_CHANNEL` | `e2e.yml` (bot_token job) | Channel ID (`C…`) or `#name`. Bot must be a member. |
 
 ### 1. Create an Incoming Webhook (Slack App)
 
-Used for `SLACK_WEBHOOK_URL` and `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`.
+Used for `SLACK_WEBHOOK_URL`.
 
 1. Open https://api.slack.com/apps and click **Create New App** → **From scratch**.
 2. Pick an app name (e.g. `slack-notice-action-ci`) and the test workspace, then **Create App**.
@@ -19,89 +21,108 @@ Used for `SLACK_WEBHOOK_URL` and `SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`.
 5. Choose the channel that should receive test messages (a dedicated `#test_slack_notice_action` channel is recommended) and click **Allow**.
 6. Copy the generated `https://hooks.slack.com/services/T.../B.../...` URL.
 
-You can reuse the same URL for both `SLACK_WEBHOOK_URL` and
-`SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST`, or create two separate webhooks if you
-want to route them to different channels.
+### 2. Create a Bot Token Slack App
 
-### 2. Register the secrets on GitHub
+Used for `SLACK_BOT_TOKEN` and `SLACK_BOT_TOKEN_TEST_CHANNEL`.
+
+1. Open https://api.slack.com/apps and either reuse the app from step 1 or **Create New App** → **From scratch**.
+2. In the left sidebar, open **OAuth & Permissions**.
+3. Under **Scopes → Bot Token Scopes**, add `chat:write`, `chat:write.customize`, and `chat:write.public`.
+4. At the top of the same page click **Install to Workspace** (or **Reinstall to Workspace** if you added scopes to an existing app) and authorize.
+5. Copy the **Bot User OAuth Token** (`xoxb-…`).
+6. Create or pick a test channel (e.g. `#test_slack_notice_action_bot`) and invite the bot with `/invite @<bot-name>`. `chat:write.public` lets the bot post to public channels without an explicit invite, but private channels still require membership.
+
+### 3. Register the secrets on GitHub
 
 Repository admin permission is required.
 
 **Web UI:** open
 <https://github.com/sonots/slack-notice-action/settings/secrets/actions>,
-click **New repository secret**, paste the URL into *Value*, and **Add secret**.
-Repeat for each of the two secrets above.
+click **New repository secret**, paste the value, and **Add secret**.
+Repeat for each secret.
 
 **`gh` CLI:**
 
 ```
-$ gh secret set SLACK_WEBHOOK_URL                             -R sonots/slack-notice-action
-$ gh secret set SLACK_WEBHOOK_URL_FOR_INTEGRATION_TEST        -R sonots/slack-notice-action
+$ gh secret set SLACK_WEBHOOK_URL              -R sonots/slack-notice-action
+$ gh secret set SLACK_BOT_TOKEN                -R sonots/slack-notice-action
+$ gh secret set SLACK_BOT_TOKEN_TEST_CHANNEL   -R sonots/slack-notice-action
 ```
 
-Each command prompts for the value — paste the webhook URL and press Enter.
+Each command prompts for the value — paste it and press Enter.
 
-### 3. Verify
+### 4. Verify
 
-Push an empty commit to `pre` to trigger the `Slack Pre` integration workflow:
+Dispatch the `E2E` workflow and watch it through to completion:
 
 ```
-$ git commit --allow-empty -m "ci: trigger integration test"
-$ git push origin pre
+$ gh workflow run e2e.yml -F mode=both
+$ gh run watch $(gh run list --workflow=e2e.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
-Every step in the `notification` job (Succeeded Check / Failed Check /
-Cancelled Check / Custom Field Check / final Check) should turn green and the
-corresponding messages should appear in the Slack channel.
+Every step in the `webhook` and `bot_token` jobs should be green, and
+the corresponding messages should appear in the Slack channel(s). For
+the full Claude-driven verification flow (including programmatic checks
+of colors, `username`, and `icon_*` overrides) see
+[`docs/e2e.md`](e2e.md).
 
 ### Troubleshooting
 
 - **`HTTP protocol error occurred: statusCode = 404`** — the webhook URL is
   invalid, expired, or has been revoked. Recreate it via the steps above and
   re-register the secret.
+- **`channel_not_found`** — the bot is not a member of a private channel, or
+  `SLACK_BOT_TOKEN_TEST_CHANNEL` is wrong. Either `/invite @<bot-name>` into the
+  channel, or grant `chat:write.public` and target a public channel.
+- **`missing_scope`** — the app was installed before you added the required
+  scope. Add the scope under **OAuth & Permissions → Bot Token Scopes**
+  and click **Reinstall to Workspace**.
+- **`not_authed` / `invalid_auth`** — `SLACK_BOT_TOKEN` is unset or expired.
+  Re-copy the `xoxb-…` token from **OAuth & Permissions**.
 - **`Cannot read properties of null (reading 'replace')`** — usually means the
   bundled `dist/index.js` is from a release that predates the null-safe mention
   parsing. Rebuild with `npm run release` and commit the regenerated `dist/`.
-- **`Slack Pre` job is the only failing check on a PR** — the integration test
-  cannot run from forks because secrets are not exposed. Merge into `pre` from a
-  branch in the same repository, or rerun the workflow manually after merging.
+- **E2E job fails only on a PR from a fork** — secrets are not exposed to
+  fork PRs. Dispatch the workflow against a branch in this repository.
 
 ## How to Develop
 
-Switch to `pre` branch:
+Cut a feature branch from `main`:
 
 ```
-$ git checkout pre
+$ git checkout main
+$ git pull origin main
+$ git checkout -b feature/your-change
 ```
 
-Install the dependencies
+Install the dependencies:
 
 ```
 $ npm install
 ```
 
-Build the typescript and run tests
+Build the typescript and run tests:
 
 ```
 $ npm run all
 ```
 
-Git push to run GitHub Actions.
+Push your branch and either dispatch the `E2E` workflow against it or
+open a PR to `main`:
 
 ```
-$ git push origin pre
+$ git push -u origin feature/your-change
+$ gh workflow run e2e.yml --ref feature/your-change -F mode=both
 ```
-
-Send PR from `pre` branch to `main` branch, and merge it.
 
 ## How to Release
 
-Update version in package.json.
+Update version in `package.json`.
 
-Send PR from `pre` branch to `main` branch, and merge it.
-Send PR from `main` branch to `v4` branch, and merge it.
+Open a PR from your feature branch to `main` and merge it.
+Open a PR from `main` to `v4` and merge it.
 
-Add a tag with a release version.
+Add a tag with a release version:
 
 ```
 $ git tag v4.x.x
