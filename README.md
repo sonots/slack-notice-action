@@ -29,7 +29,7 @@ Webhook URL** or a **Bot Token**.
 - uses: sonots/slack-notice-action@v4
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # `secrets.GITHUB_TOKEN` is automatically provided by GitHub Actions
-    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # Slack App Incoming Webhook URL which you must provide
+    SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }} # Slack App Bot User OAuth Token which you must provide
   with:
     status: ${{ job.status }}
     only_mention_fail: 'channel'
