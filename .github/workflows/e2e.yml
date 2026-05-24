@@ -1,0 +1,128 @@
+name: E2E
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Transport(s) to exercise'
+        type: choice
+        options:
+          - both
+          - webhook
+          - bot_token
+        default: both
+      run_marker:
+        description: 'Marker string embedded in every message text so the verifier can isolate this run. Defaults to github.run_id.'
+        type: string
+        default: ''
+
+jobs:
+  webhook:
+    if: ${{ inputs.mode == 'webhook' || inputs.mode == 'both' }}
+    runs-on: ubuntu-latest
+    env:
+      MARKER: ${{ inputs.run_marker == '' && github.run_id || inputs.run_marker }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Webhook / Success
+        uses: ./
+        with:
+          status: success
+          text: '[e2e:${{ env.MARKER }}] webhook-success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Webhook / Failure
+        uses: ./
+        with:
+          status: failure
+          text: '[e2e:${{ env.MARKER }}] webhook-failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Webhook / Cancelled
+        uses: ./
+        with:
+          status: cancelled
+          text: '[e2e:${{ env.MARKER }}] webhook-cancelled'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Webhook / Custom payload
+        uses: ./
+        with:
+          status: custom
+          payload: |
+            {
+              text: "[e2e:${{ env.MARKER }}] webhook-custom",
+              attachments: [{
+                fallback: 'fallback',
+                color: 'good',
+                title: 'CI Result',
+                text: 'Succeeded',
+                fields: [{
+                  title: 'lower case',
+                  value: 'LOWER CASE CHECK'.toLowerCase(),
+                  short: true
+                }]
+              }]
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  bot_token:
+    if: ${{ inputs.mode == 'bot_token' || inputs.mode == 'both' }}
+    runs-on: ubuntu-latest
+    env:
+      MARKER: ${{ inputs.run_marker == '' && github.run_id || inputs.run_marker }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: BotToken / Success
+        uses: ./
+        with:
+          status: success
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
+          text: '[e2e:${{ env.MARKER }}] bot-success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      - name: BotToken / Failure
+        uses: ./
+        with:
+          status: failure
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
+          text: '[e2e:${{ env.MARKER }}] bot-failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      - name: BotToken / Cancelled
+        uses: ./
+        with:
+          status: cancelled
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
+          text: '[e2e:${{ env.MARKER }}] bot-cancelled'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      - name: BotToken / username + icon_emoji override
+        uses: ./
+        with:
+          status: success
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
+          username: 'e2e-bot (emoji)'
+          icon_emoji: ':rocket:'
+          text: '[e2e:${{ env.MARKER }}] bot-username-emoji'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      - name: BotToken / icon_url override
+        uses: ./
+        with:
+          status: success
+          channel: ${{ secrets.SLACK_BOT_TOKEN_TEST_CHANNEL }}
+          username: 'e2e-bot (url)'
+          icon_url: 'https://github.githubassets.com/images/modules/logos_page/Octocat.png'
+          text: '[e2e:${{ env.MARKER }}] bot-icon-url'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
