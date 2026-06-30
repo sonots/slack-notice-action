@@ -38,25 +38,25 @@ Webhook URL** or a **Bot Token**.
 
 ## Environment Variables
 
-| Name                | Required | Description                                                                                  |
-| ------------------- | :------: | -------------------------------------------------------------------------------------------- |
-| `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions.                |
-| `SLACK_WEBHOOK_URL` | one of   | Slack App Incoming Webhook URL. Triggers **Webhook mode**.                                   |
-| `SLACK_BOT_TOKEN`   | one of   | Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
+| Name                | Type     | Description                                                                                                                                            |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GITHUB_TOKEN`      | _string_ | **Required.** Use `${{ secrets.GITHUB_TOKEN }}`, which is automatically provided by GitHub Actions.                                                   |
+| `SLACK_WEBHOOK_URL` | _string_ | **Required** (either this or `SLACK_BOT_TOKEN`). Slack App Incoming Webhook URL. Triggers **Webhook mode**.                                           |
+| `SLACK_BOT_TOKEN`   | _string_ | **Required** (either this or `SLACK_WEBHOOK_URL`). Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
 
 ## Input Parameters
 
-| Key                 | Value                                                                           | Default       | Description                                                                                              |
-| ------------------- | ------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
-| `status`            | <ul><li>`success`</li><li>`failure`</li><li>`cancelled`</li><li>`custom`</li></ul> | —           | **Required.** Use `${{ job.status }}` for the first three.                                               |
-| `text`              | any string                                                                      | `''`          | Override the default text on every status.                                                               |
-| `text_on_success`   | any string                                                                      | `''`          | Override text on success only. Wins over `text`.                                                         |
-| `text_on_fail`      | any string                                                                      | `''`          | Override text on failure only. Wins over `text`.                                                         |
-| `text_on_cancel`    | any string                                                                      | `''`          | Override text on cancellation only. Wins over `text`.                                                    |
-| `title`             | any string                                                                      | workflow name | Attachment title.                                                                                        |
-| `mention`           | <ul><li>`here`</li><li>`channel`</li><li>user ID (e.g. `U024BE7LH`)</li></ul>   | `''`          | Mention always if specified. Comma-separate for multiple users. See [Mentioning Users][mentioning-users]. |
-| `only_mention_fail` | same as `mention`                                                               | `''`          | Mention only on failure if specified.                                                                    |
-| `payload`           | JavaScript object literal                                                       | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload). |
+| Key                 | Type     | Values                                   | Default       | Description                                                                                                            |
+| ------------------- | -------- | ---------------------------------------- | :-----------: | -------------------------------------------------------------------------------------------------------------------- |
+| `status`            | _enum_   | `success` `failure` `cancelled` `custom` | —             | **Required.** Use `${{ job.status }}` for the first three.                                                            |
+| `text`              | _string_ | —                                        | `''`          | Override the default text on every status.                                                                           |
+| `text_on_success`   | _string_ | —                                        | `''`          | Override text on success only. Wins over `text`.                                                                     |
+| `text_on_fail`      | _string_ | —                                        | `''`          | Override text on failure only. Wins over `text`.                                                                     |
+| `text_on_cancel`    | _string_ | —                                        | `''`          | Override text on cancellation only. Wins over `text`.                                                               |
+| `title`             | _string_ | —                                        | workflow name | Attachment title.                                                                                                    |
+| `mention`           | _string_ | `here` `channel` `<user-id>`             | `''`          | Mention always if specified. Comma-separate for multiple users, e.g. `U024BE7LH,U987XYZAB`. See [Mentioning Users][mentioning-users]. |
+| `only_mention_fail` | _string_ | `here` `channel` `<user-id>`             | `''`          | Mention only on failure if specified.                                                                               |
+| `payload`           | _object_ | —                                        | —             | **Required when `status: custom`.** Replaces the default message. See [Custom Payload](#custom-payload).             |
 
 ### Bot Token mode only
 
@@ -64,12 +64,12 @@ Set when `SLACK_BOT_TOKEN` is provided. Ignored (with a warning) in
 Webhook mode, since modern Slack App Incoming Webhooks drop these
 fields server-side.
 
-| Key          | Value                                       | Default | Description                                                            |
-| ------------ | ------------------------------------------- | ------- | ---------------------------------------------------------------------- |
-| `channel`    | channel ID (e.g. `C0123456789`) or `#name`  | `''`    | **Required in Bot Token mode.** Destination channel for the message.   |
-| `username`   | any string                                  | `''`    | Override bot display name for this message.                            |
-| `icon_emoji` | `:emoji:`                                   | `''`    | Override bot icon with an emoji.                                       |
-| `icon_url`   | image URL                                   | `''`    | Override bot icon with an image URL.                                   |
+| Key          | Type     | Values                 | Default | Description                                                          |
+| ------------ | -------- | ---------------------- | :-----: | -------------------------------------------------------------------- |
+| `channel`    | _string_ | `<channel-id>` `#name` | `''`    | **Required in Bot Token mode.** Destination channel for the message. |
+| `username`   | _string_ | —                      | `''`    | Override bot display name for this message.                          |
+| `icon_emoji` | _string_ | `:emoji:`              | `''`    | Override bot icon with an emoji.                                     |
+| `icon_url`   | _string_ | —                      | `''`    | Override bot icon with an image URL.                                 |
 
 There are no Webhook-mode-only inputs.
 
