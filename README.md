@@ -38,11 +38,11 @@ Webhook URL** or a **Bot Token**.
 
 ## Environment Variables
 
-| Name                | Required | Description                                                                                  |
-| ------------------- | :------: | -------------------------------------------------------------------------------------------- |
-| `GITHUB_TOKEN`      | yes      | Pass `${{ secrets.GITHUB_TOKEN }}`. Automatically provided by GitHub Actions.                |
-| `SLACK_WEBHOOK_URL` | one of   | Slack App Incoming Webhook URL. Triggers **Webhook mode**.                                   |
-| `SLACK_BOT_TOKEN`   | one of   | Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
+| Name                | Type     | Description                                                                                                                                            |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GITHUB_TOKEN`      | _string_ | **Required.** Use `${{ secrets.GITHUB_TOKEN }}`, which is automatically provided by GitHub Actions.                                                   |
+| `SLACK_WEBHOOK_URL` | _string_ | **Required** (either this or `SLACK_BOT_TOKEN`). Slack App Incoming Webhook URL. Triggers **Webhook mode**.                                           |
+| `SLACK_BOT_TOKEN`   | _string_ | **Required** (either this or `SLACK_WEBHOOK_URL`). Slack App Bot User OAuth Token (`xoxb-…`). Triggers **Bot Token mode**. Takes precedence over `SLACK_WEBHOOK_URL` when both are set. |
 
 ## Input Parameters
 
