@@ -1,5 +1,34 @@
 # Changelog
 
+## v4.1.2
+
+### Bug Fixes
+
+- **Declare `text_on_success` / `text_on_fail` / `text_on_cancel` in `action.yml`.**
+  These inputs were already implemented and documented, but were missing from
+  the `action.yml` `inputs:` declaration, so passing them produced an
+  `Unexpected input(s)` warning on every run. The inputs are now declared and
+  the warning is gone.
+
+## v4.1.1
+
+### Security
+
+- **Bump `@actions/core` v1 → v3** to drop the transitive vulnerable
+  `undici` 5.29.0. Clears five Dependabot alerts. No API changes.
+
+## v4.1.0
+
+### Added
+
+- **Bot Token transport mode.** Set the `SLACK_BOT_TOKEN` (`xoxb-…`)
+  environment variable to post via the Slack Web API (`chat.postMessage`)
+  instead of an Incoming Webhook. In this mode the `channel`, `username`,
+  `icon_emoji`, and `icon_url` inputs are honored again (Slack App
+  webhooks ignore those per-message overrides). `channel` is **required**
+  when using `SLACK_BOT_TOKEN`. Webhook mode via `SLACK_WEBHOOK_URL`
+  continues to work unchanged.
+
 ## v4.0.0
 
 ### Breaking Changes
