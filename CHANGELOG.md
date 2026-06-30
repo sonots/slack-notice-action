@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.1.4
+
+### Documentation
+
+- **Refine README parameter tables.** The Environment Variables, Input
+  Parameters, and Bot Token mode tables now use consistent `Type` /
+  `Values` columns with inline code chips instead of in-cell bullet
+  lists, and fold the required-ness into the descriptions. Documentation
+  only — `dist/index.js` is unchanged from v4.1.3, so there is no
+  consumer-facing behavior change. (#71)
+
+### Security
+
+- **Clear the js-yaml DoS audit finding.** `npm audit fix` bumped the
+  dev-only transitive `js-yaml` (via jest/istanbul) to clear
+  GHSA-h67p-54hq-rp68. Not bundled into `dist/index.js`, so no consumer
+  impact. (#74)
+
 ## v4.1.3
 
 ### Security
