@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.1.3
+
+### Security
+
+- **Bump bundled vulnerable transitive dependencies.** Updated `undici`
+  6.25.0 → 6.27.0 and `form-data` 4.0.5 → 4.0.6 (both bundled into
+  `dist/index.js` and shipped to consumers), plus the dev-only
+  `@babel/core` 7.29.0 → 7.29.7. Clears six Dependabot alerts. No API
+  changes.
+
 ## v4.1.2
 
 ### Bug Fixes
