@@ -24,6 +24,15 @@ inputs:
   text:
     description: You can overwrite text.
     default: ''
+  text_on_success:
+    description: Override text on success only. Wins over `text`.
+    default: ''
+  text_on_fail:
+    description: Override text on failure only. Wins over `text`.
+    default: ''
+  text_on_cancel:
+    description: Override text on cancellation only. Wins over `text`.
+    default: ''
   channel:
     description: |
       Slack channel ID or name (e.g. `C0123456789` or `#alerts`).
